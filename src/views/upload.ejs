@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Businesses - Valuation Engine</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f5f5f5;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Navigation */
+    .nav {
+      background-color: #2c3e50;
+      padding: 15px 0;
+      margin: -40px -40px 30px -40px;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .nav-content {
+      padding: 0 40px;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .nav a {
+      color: white;
+      text-decoration: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+
+    .nav a:hover {
+      background-color: rgba(255,255,255,0.1);
+    }
+
+    .nav a.active {
+      background-color: rgba(255,255,255,0.2);
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .upload-form {
+      margin-top: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    input[type="file"] {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      border: 2px dashed #ddd;
+      border-radius: 4px;
+      background: #fafafa;
+      cursor: pointer;
+    }
+
+    input[type="file"]:hover {
+      border-color: #999;
+      background: #f0f0f0;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .error-box {
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    .error-box strong {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .error-box ul {
+      margin-left: 20px;
+      margin-top: 10px;
+    }
+
+    .error-box li {
+      margin-bottom: 5px;
+    }
+
+    .info-box {
+      background-color: #d1ecf1;
+      border: 1px solid #bee5eb;
+      color: #0c5460;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    .info-box h3 {
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .info-box ul {
+      margin-left: 20px;
+    }
+
+    .info-box li {
+      margin-bottom: 5px;
+    }
+
+    .info-box code {
+      background-color: rgba(0,0,0,0.1);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Navigation -->
+    <div class="nav">
+      <div class="nav-content">
+        <a href="/">Home</a>
+        <a href="/admin">All Businesses</a>
+        <a href="/upload" class="active">Upload CSV</a>
+      </div>
+    </div>
+
+    <h1>Upload Businesses</h1>
+    <p class="subtitle">Upload a CSV file to add businesses to the valuation engine</p>
+
+    <% if (typeof error !== 'undefined') { %>
+      <div class="error-box">
+        <strong>Error:</strong> <%= error %>
+
+        <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+          <ul>
+            <% errors.forEach(err => { %>
+              <li><%= err %></li>
+            <% }); %>
+          </ul>
+        <% } %>
+      </div>
+    <% } %>
+
+    <div class="info-box">
+      <h3>CSV Format Requirements:</h3>
+      <ul>
+        <li><strong>Required columns:</strong> <code>company_name</code>, <code>city</code>, <code>state</code></li>
+        <li><strong>Optional columns:</strong> <code>industry</code></li>
+        <li>State can be full name (e.g., "California") or abbreviation (e.g., "CA")</li>
+        <li>Supported delimiters: comma, semicolon, or tab</li>
+        <li>Duplicate businesses (same name + city + state) will be automatically skipped</li>
+      </ul>
+    </div>
+
+    <form class="upload-form" action="/upload" method="POST" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="csvFile">Select CSV File:</label>
+        <input type="file" id="csvFile" name="csvFile" accept=".csv" required>
+      </div>
+
+      <button type="submit">Upload and Process CSV</button>
+    </form>
+
+    <a href="/" class="back-link">&larr; Back to Home</a>
+  </div>
+</body>
+</html>

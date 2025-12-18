@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Valuation Engine - Business Outreach Tool</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      padding: 60px 50px;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      text-align: center;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 42px;
+      color: #2c3e50;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: #6c757d;
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-bottom: 40px;
+      padding: 20px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 36px;
+      font-weight: bold;
+      color: #667eea;
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: #6c757d;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 5px;
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      padding: 18px 40px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background-color: #fff;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+      background-color: #667eea;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .features {
+      text-align: left;
+      margin-top: 40px;
+      padding-top: 30px;
+      border-top: 2px solid #e9ecef;
+    }
+
+    .features h3 {
+      font-size: 18px;
+      color: #2c3e50;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .feature-list {
+      list-style: none;
+    }
+
+    .feature-list li {
+      padding: 10px 0;
+      color: #495057;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+    }
+
+    .feature-list li::before {
+      content: "✓";
+      color: #28a745;
+      font-weight: bold;
+      font-size: 20px;
+      margin-right: 15px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 40px 30px;
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+
+      .stats {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .btn {
+        padding: 15px 30px;
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Valuation Engine</h1>
+    <p class="subtitle">
+      Generate personalized business valuations at scale for outbound campaigns
+    </p>
+
+    <% if (typeof stats !== 'undefined') { %>
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-number"><%= stats.totalBusinesses %></span>
+          <span class="stat-label">Businesses</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number"><%= stats.totalViews %></span>
+          <span class="stat-label">Total Views</span>
+        </div>
+      </div>
+    <% } %>
+
+    <div class="actions">
+      <a href="/upload" class="btn btn-primary">📤 Upload Businesses (CSV)</a>
+      <a href="/admin" class="btn btn-secondary">📊 View All Businesses</a>
+    </div>
+
+    <div class="features">
+      <h3>What You Can Do:</h3>
+      <ul class="feature-list">
+        <li>Upload business lists via CSV</li>
+        <li>Auto-generate personalized valuation pages</li>
+        <li>Track engagement with view counts</li>
+        <li>Export data for Instantly.ai campaigns</li>
+        <li>Regional and industry-based valuations</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

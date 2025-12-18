@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business Valuation - <%= valuation.business.company_name %></title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f8f9fa;
+      padding: 20px;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #e9ecef;
+    }
+
+    .header h1 {
+      font-size: 36px;
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+
+    .header .region {
+      font-size: 18px;
+      color: #6c757d;
+      font-style: italic;
+    }
+
+    /* Disclaimer Box */
+    .disclaimer {
+      background-color: #fff3cd;
+      border: 3px solid #ffc107;
+      border-radius: 8px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+    }
+
+    .disclaimer h2 {
+      color: #856404;
+      font-size: 20px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+    }
+
+    .disclaimer h2::before {
+      content: "⚠️";
+      font-size: 28px;
+      margin-right: 10px;
+    }
+
+    .disclaimer p {
+      color: #856404;
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .disclaimer strong {
+      display: block;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    /* Valuation Range */
+    .valuation-range {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .valuation-range h2 {
+      font-size: 18px;
+      font-weight: 500;
+      opacity: 0.9;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .valuation-range .value {
+      font-size: 48px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    /* Breakdown Section */
+    .breakdown {
+      margin-bottom: 30px;
+    }
+
+    .breakdown h3 {
+      font-size: 24px;
+      color: #2c3e50;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e9ecef;
+    }
+
+    .breakdown-table {
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .breakdown-row:last-child {
+      border-bottom: none;
+      font-weight: bold;
+      font-size: 18px;
+      padding-top: 15px;
+      margin-top: 10px;
+      border-top: 2px solid #6c757d;
+    }
+
+    .breakdown-row .label {
+      color: #495057;
+      flex: 1;
+    }
+
+    .breakdown-row .value {
+      color: #212529;
+      font-weight: 600;
+      text-align: right;
+      min-width: 150px;
+    }
+
+    .breakdown-row .note {
+      color: #6c757d;
+      font-size: 14px;
+      font-weight: normal;
+      font-style: italic;
+    }
+
+    /* Confidence Box */
+    .confidence {
+      background-color: #e7f3ff;
+      border-left: 4px solid #2196F3;
+      padding: 20px;
+      margin-bottom: 30px;
+      border-radius: 4px;
+    }
+
+    .confidence h4 {
+      font-size: 18px;
+      color: #1976D2;
+      margin-bottom: 10px;
+    }
+
+    .confidence p {
+      color: #495057;
+      font-size: 15px;
+    }
+
+    /* CTA Box */
+    .cta-box {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+    }
+
+    .cta-box h3 {
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+
+    .cta-box p {
+      font-size: 16px;
+      margin-bottom: 20px;
+      opacity: 0.95;
+      line-height: 1.6;
+    }
+
+    .cta-button {
+      display: inline-block;
+      background-color: white;
+      color: #f5576c;
+      padding: 15px 35px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 16px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    }
+
+    /* Footer */
+    .footer {
+      background-color: #f8f9fa;
+      padding: 25px;
+      border-radius: 8px;
+      border-top: 3px solid #dee2e6;
+    }
+
+    .footer h4 {
+      font-size: 18px;
+      color: #495057;
+      margin-bottom: 15px;
+    }
+
+    .footer p {
+      color: #6c757d;
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+
+      .header h1 {
+        font-size: 28px;
+      }
+
+      .valuation-range .value {
+        font-size: 36px;
+      }
+
+      .breakdown-row {
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .breakdown-row .value {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1><%= valuation.business.company_name %></h1>
+      <p class="region">in <%= valuation.business.region_label %></p>
+    </div>
+
+    <!-- Disclaimer Box -->
+    <div class="disclaimer">
+      <h2>IMPORTANT DISCLAIMER</h2>
+      <p>This estimate is based on industry averages and assumptions, not your actual financials.</p>
+      <p>It is not a formal valuation, appraisal, or offer to purchase.</p>
+      <strong>Do not make business decisions based on this estimate alone.</strong>
+    </div>
+
+    <!-- Valuation Range -->
+    <div class="valuation-range">
+      <h2>Estimated Business Value</h2>
+      <div class="value">
+        <%= valuation.formatted.valuation_low %> – <%= valuation.formatted.valuation_high %>
+      </div>
+    </div>
+
+    <!-- Show-the-Math Breakdown -->
+    <div class="breakdown">
+      <h3>How We Calculated This:</h3>
+      <div class="breakdown-table">
+        <div class="breakdown-row">
+          <span class="label">Estimated Annual Revenue</span>
+          <span class="value">
+            <%= valuation.formatted.base_revenue %>
+            <span class="note">(industry average for your region)</span>
+          </span>
+        </div>
+
+        <div class="breakdown-row">
+          <span class="label">Estimated SDE Margin</span>
+          <span class="value">
+            <%= valuation.formatted.sde_margin_pct %>
+            <span class="note">(conservative estimate)</span>
+          </span>
+        </div>
+
+        <div class="breakdown-row">
+          <span class="label">Estimated SDE (Seller's Discretionary Earnings)</span>
+          <span class="value"><%= valuation.formatted.base_sde %></span>
+        </div>
+
+        <div class="breakdown-row">
+          <span class="label">Regional Adjustment</span>
+          <span class="value">
+            <%= valuation.formatted.regional_modifier %>
+            <span class="note">(based on <%= valuation.business.region_label %>)</span>
+          </span>
+        </div>
+
+        <div class="breakdown-row">
+          <span class="label">Adjusted SDE</span>
+          <span class="value"><%= valuation.formatted.adjusted_sde %></span>
+        </div>
+
+        <div class="breakdown-row">
+          <span class="label">Valuation Multiple Range</span>
+          <span class="value"><%= valuation.formatted.multiple_range %></span>
+        </div>
+
+        <div class="breakdown-row">
+          <span class="label">Estimated Value Range</span>
+          <span class="value">
+            <%= valuation.formatted.valuation_low %> – <%= valuation.formatted.valuation_high %>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confidence Statement -->
+    <div class="confidence">
+      <h4>Confidence Level: Low</h4>
+      <p>
+        We don't have your actual financial data, so this is a conservative starting point.
+        The actual value of your business depends on your real revenue, profitability, growth trends,
+        assets, customer concentration, and many other factors.
+      </p>
+    </div>
+
+    <!-- Correction Invitation CTA -->
+    <div class="cta-box">
+      <h3>Something Off?</h3>
+      <p>
+        We've estimated conservatively since we don't have your numbers.<br>
+        If your revenue, margins, or industry classification don't match, reply and we'll revise.
+      </p>
+      <a href="mailto:<%= contactEmail %>?subject=Valuation%20Correction%20for%20<%= encodeURIComponent(valuation.business.company_name) %>"
+         class="cta-button">
+        Reply to Correct This Estimate
+      </a>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <h4>About This Estimate:</h4>
+      <p>
+        We've classified this as a <strong><%= valuation.assumptions.industry_label %></strong> business
+        in <strong><%= valuation.business.region_label %></strong>.
+      </p>
+      <p>
+        If either classification is incorrect, please let us know and we'll recalculate with the correct assumptions.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
