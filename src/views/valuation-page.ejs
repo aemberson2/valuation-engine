@@ -412,19 +412,6 @@
         </div>
 
         <div class="breakdown-row">
-          <span class="label">Regional Adjustment</span>
-          <span class="value">
-            <%= valuation.formatted.regional_modifier %>
-            <span class="note">(based on <%= valuation.business.region_label %>)</span>
-          </span>
-        </div>
-
-        <div class="breakdown-row">
-          <span class="label">Adjusted SDE</span>
-          <span class="value"><%= valuation.formatted.adjusted_sde %></span>
-        </div>
-
-        <div class="breakdown-row">
           <span class="label">Valuation Multiple Range</span>
           <span class="value"><%= valuation.formatted.multiple_range %></span>
         </div>
@@ -486,11 +473,6 @@
       <p>This estimate is based on industry averages and assumptions, not your actual financials.</p>
       <p>It is not a formal valuation, appraisal, or offer to purchase.</p>
       <strong>Do not make business decisions based on this estimate alone.</strong>
-    </div>
-
-    <!-- Footer -->
-    <div class="footer">
-      Prepared by Transworld Business Advisors
     </div>
   </div>
 </body>
