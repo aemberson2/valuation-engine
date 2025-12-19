@@ -36,6 +36,12 @@
       border-bottom: 2px solid #e9ecef;
     }
 
+    .header .logo {
+      max-width: 200px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+
     .header h1 {
       font-size: 36px;
       color: #2c3e50;
@@ -87,13 +93,13 @@
 
     /* Valuation Range */
     .valuation-range {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #9A7B4F 0%, #7d6440 100%);
       color: white;
       padding: 40px;
       border-radius: 8px;
       text-align: center;
       margin-bottom: 30px;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 4px 15px rgba(154, 123, 79, 0.4);
     }
 
     .valuation-range h2 {
@@ -188,13 +194,13 @@
 
     /* CTA Box */
     .cta-box {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      background: linear-gradient(135deg, #9A7B4F 0%, #7d6440 100%);
       color: white;
       padding: 30px;
       border-radius: 8px;
       text-align: center;
       margin-bottom: 30px;
-      box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+      box-shadow: 0 4px 15px rgba(154, 123, 79, 0.3);
     }
 
     .cta-box h3 {
@@ -212,7 +218,7 @@
     .cta-button {
       display: inline-block;
       background-color: white;
-      color: #f5576c;
+      color: #9A7B4F;
       padding: 15px 35px;
       border-radius: 50px;
       text-decoration: none;
@@ -227,25 +233,82 @@
       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
     }
 
-    /* Footer */
-    .footer {
+    /* Broker Info Section */
+    .broker-info {
       background-color: #f8f9fa;
-      padding: 25px;
+      padding: 30px;
       border-radius: 8px;
-      border-top: 3px solid #dee2e6;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      border: 1px solid #dee2e6;
     }
 
-    .footer h4 {
-      font-size: 18px;
-      color: #495057;
+    .broker-info .headshot {
+      flex-shrink: 0;
+    }
+
+    .broker-info .headshot img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid #9A7B4F;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .broker-info .details {
+      flex: 1;
+    }
+
+    .broker-info .name {
+      font-size: 24px;
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 5px;
+    }
+
+    .broker-info .title {
+      font-size: 16px;
+      color: #6c757d;
+      margin-bottom: 3px;
+    }
+
+    .broker-info .company {
+      font-size: 16px;
+      color: #9A7B4F;
+      font-weight: 600;
       margin-bottom: 15px;
     }
 
-    .footer p {
-      color: #6c757d;
+    .broker-info .contact {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .broker-info .contact a {
+      color: #495057;
+      text-decoration: none;
       font-size: 15px;
-      line-height: 1.6;
-      margin-bottom: 10px;
+      transition: color 0.2s;
+    }
+
+    .broker-info .contact a:hover {
+      color: #9A7B4F;
+    }
+
+    /* Footer */
+    .footer {
+      background-color: #2c3e50;
+      color: #9A7B4F;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
     }
 
     /* Responsive */
@@ -256,6 +319,10 @@
 
       .header h1 {
         font-size: 28px;
+      }
+
+      .header .logo {
+        max-width: 150px;
       }
 
       .valuation-range .value {
@@ -270,6 +337,21 @@
       .breakdown-row .value {
         text-align: left;
       }
+
+      .broker-info {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+      }
+
+      .broker-info .headshot img {
+        width: 100px;
+        height: 100px;
+      }
+
+      .broker-info .contact {
+        align-items: center;
+      }
     }
   </style>
 </head>
@@ -277,6 +359,7 @@
   <div class="container">
     <!-- Header -->
     <div class="header">
+      <img src="/images/transworld-logo.webp" alt="Transworld Business Advisors" class="logo">
       <h1><%= valuation.business.company_name %></h1>
       <p class="region">in <%= valuation.business.region_label %></p>
     </div>
@@ -366,22 +449,31 @@
         We've estimated conservatively since we don't have your numbers.<br>
         If your revenue, margins, or industry classification don't match, reply and we'll revise.
       </p>
-      <a href="mailto:<%= contactEmail %>?subject=Valuation%20Correction%20for%20<%= encodeURIComponent(valuation.business.company_name) %>"
+      <a href="mailto:aemberson@tworld.com?subject=Valuation%20Correction%20for%20<%= encodeURIComponent(valuation.business.company_name) %>"
          class="cta-button">
         Reply to Correct This Estimate
       </a>
     </div>
 
+    <!-- Broker Info Section -->
+    <div class="broker-info">
+      <div class="headshot">
+        <img src="/images/andrew-headshot.webp" alt="Andrew Emberson">
+      </div>
+      <div class="details">
+        <div class="name">Andrew Emberson</div>
+        <div class="title">Business Advisor</div>
+        <div class="company">Transworld Business Advisors</div>
+        <div class="contact">
+          <a href="mailto:aemberson@tworld.com">aemberson@tworld.com</a>
+          <a href="tel:+17152147899">715-214-7899</a>
+        </div>
+      </div>
+    </div>
+
     <!-- Footer -->
     <div class="footer">
-      <h4>About This Estimate:</h4>
-      <p>
-        We've classified this as a <strong><%= valuation.assumptions.industry_label %></strong> business
-        in <strong><%= valuation.business.region_label %></strong>.
-      </p>
-      <p>
-        If either classification is incorrect, please let us know and we'll recalculate with the correct assumptions.
-      </p>
+      Prepared by Transworld Business Advisors
     </div>
   </div>
 </body>
