@@ -92,8 +92,19 @@ async function initializeApp() {
     await runMigrations();
 
     // Start server
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`   Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
+
+    // Handle server errors
+    server.on('error', (error) => {
+      if (error.code === 'EADDRINUSE') {
+        console.error(`❌ Port ${PORT} is already in use`);
+      } else {
+        console.error('❌ Server error:', error);
+      }
+      process.exit(1);
     });
   } catch (error) {
     console.error('❌ App initialization failed:', error);
@@ -101,13 +112,19 @@ async function initializeApp() {
   }
 }
 
-// Start the application
-initializeApp();
-
-// Routes
+// Routes (must be defined before initializeApp)
 app.use('/upload', uploadRouter);
 app.use('/valuation', valuationRouter);
 app.use('/admin', adminRouter);
+
+// Health check endpoint for Railway
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    port: PORT
+  });
+});
 
 // Home page
 app.get('/', async (req, res) => {
@@ -132,6 +149,5 @@ app.get('/', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+// Start the application (only listens once, inside initializeApp)
+initializeApp();
