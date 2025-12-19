@@ -193,8 +193,9 @@ async function processBusinesses(businesses) {
           valuation_url_slug,
           first_name,
           last_name,
-          email
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+          email,
+          apollo_contact_id
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
         [
           business.company_name,
           business.city,
@@ -204,7 +205,8 @@ async function processBusinesses(businesses) {
           valuationUrlSlug,
           business.first_name || null,
           business.last_name || null,
-          business.email || null
+          business.email || null,
+          business.apollo_contact_id || null
         ]
       );
 

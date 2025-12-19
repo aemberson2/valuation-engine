@@ -93,6 +93,7 @@ async function transformApolloCSV(filePath) {
       const firstName = record['First Name'];
       const lastName = record['Last Name'];
       const email = record['Email'];
+      const apolloContactId = record['Apollo Contact Id'];
 
       // Use Company City/State if available, fallback to contact City/State
       const city = record['Company City'] || record['City'];
@@ -145,7 +146,8 @@ async function transformApolloCSV(filePath) {
         // Keep contact info for export
         first_name: firstName ? firstName.trim() : '',
         last_name: lastName ? lastName.trim() : '',
-        email: email ? email.trim() : ''
+        email: email ? email.trim() : '',
+        apollo_contact_id: apolloContactId ? apolloContactId.trim() : ''
       });
     });
 

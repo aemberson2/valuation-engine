@@ -13,6 +13,7 @@ CREATE TABLE businesses (
     first_name VARCHAR(100),
     last_name VARCHAR(100),
     email VARCHAR(255),
+    apollo_contact_id VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     view_count INTEGER DEFAULT 0
 );
@@ -47,4 +48,5 @@ CREATE TABLE region_mappings (
 CREATE INDEX idx_businesses_slug ON businesses(valuation_url_slug);
 CREATE INDEX idx_businesses_location ON businesses(city, state);
 CREATE INDEX idx_businesses_email ON businesses(email);
+CREATE INDEX idx_businesses_apollo_id ON businesses(apollo_contact_id);
 CREATE INDEX idx_region_mappings_lookup ON region_mappings(state, city);

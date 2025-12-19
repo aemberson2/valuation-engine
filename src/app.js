@@ -57,7 +57,8 @@ async function runMigrations() {
     const migrations = [
       { file: '001_create_tables.sql', name: 'Create tables' },
       { file: '002_seed_data.sql', name: 'Seed data' },
-      { file: '003_add_contact_fields.sql', name: 'Add contact fields' }
+      { file: '003_add_contact_fields.sql', name: 'Add contact fields' },
+      { file: '004_add_apollo_contact_id.sql', name: 'Add Apollo Contact ID' }
     ];
 
     for (const migration of migrations) {
