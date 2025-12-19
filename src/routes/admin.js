@@ -31,7 +31,7 @@ router.get('/export', async (req, res) => {
   try {
     const result = await db.query(
       `SELECT id, company_name, city, state, industry, region_label,
-              valuation_url_slug
+              valuation_url_slug, first_name, last_name, email
        FROM businesses
        ORDER BY created_at DESC`
     );
@@ -41,8 +41,8 @@ router.get('/export', async (req, res) => {
     // Calculate valuations for all businesses
     const csvRows = [];
 
-    // Add CSV header
-    csvRows.push('company_name,city,state,industry,region_label,valuation_link,valuation_range_display');
+    // Add CSV header (with contact fields first for Instantly.ai)
+    csvRows.push('first_name,last_name,email,company_name,city,state,industry,region_label,valuation_link,valuation_range_display');
 
     // Add business rows
     for (const business of businesses) {
@@ -64,6 +64,9 @@ router.get('/export', async (req, res) => {
         };
 
         csvRows.push([
+          escapeCsv(business.first_name || ''),
+          escapeCsv(business.last_name || ''),
+          escapeCsv(business.email || ''),
           escapeCsv(business.company_name),
           escapeCsv(business.city),
           escapeCsv(business.state),

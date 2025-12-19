@@ -182,7 +182,7 @@ async function processBusinesses(businesses) {
       // Generate valuation URL slug
       const valuationUrlSlug = uuidv4();
 
-      // Insert into businesses table
+      // Insert into businesses table (including contact fields from Apollo)
       await db.query(
         `INSERT INTO businesses (
           company_name,
@@ -190,15 +190,21 @@ async function processBusinesses(businesses) {
           state,
           industry,
           region_label,
-          valuation_url_slug
-        ) VALUES ($1, $2, $3, $4, $5, $6)`,
+          valuation_url_slug,
+          first_name,
+          last_name,
+          email
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
         [
           business.company_name,
           business.city,
           business.state,
           business.industry,
           regionData.region_label,
-          valuationUrlSlug
+          valuationUrlSlug,
+          business.first_name || null,
+          business.last_name || null,
+          business.email || null
         ]
       );
 
