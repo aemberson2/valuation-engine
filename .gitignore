@@ -3,3 +3,4 @@ node_modules/
 uploads/
 *.csv
 .DS_Store
+run-railway-migrations.sh
