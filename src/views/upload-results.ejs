@@ -257,6 +257,42 @@
       </div>
     </div>
 
+    <% if (typeof apolloStats !== 'undefined') { %>
+      <div class="success-box" style="background-color: #e7f3ff; border-color: #2196F3;">
+        <h2 style="color: #1976D2;">Apollo Transformation Details</h2>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="label">US Businesses</div>
+            <div class="value"><%= apolloStats.transformed %></div>
+          </div>
+
+          <div class="stat-card">
+            <div class="label">Non-US Filtered</div>
+            <div class="value"><%= apolloStats.skippedNonUS %></div>
+          </div>
+
+          <% if (apolloStats.skippedMissingData > 0) { %>
+            <div class="stat-card">
+              <div class="label">Missing Data</div>
+              <div class="value"><%= apolloStats.skippedMissingData %></div>
+            </div>
+          <% } %>
+
+          <% if (apolloStats.skippedInvalidState > 0) { %>
+            <div class="stat-card">
+              <div class="label">Invalid States</div>
+              <div class="value"><%= apolloStats.skippedInvalidState %></div>
+            </div>
+          <% } %>
+        </div>
+
+        <p style="margin-top: 15px; color: #1976D2; font-size: 14px;">
+          ✓ Contact information (First Name, Last Name, Email) has been preserved for future export
+        </p>
+      </div>
+    <% } %>
+
     <% if (duplicates && duplicates.length > 0) { %>
       <div class="warning-box">
         <h3>Duplicate Businesses Skipped (<%= duplicates.length %>):</h3>

@@ -6,6 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 const db = require('../config/database');
 const { parseCSV } = require('../services/csvParser');
 const { mapRegion } = require('../services/regionMapper');
+const { transformApolloCSV } = require('../services/apolloTransform');
 
 const router = express.Router();
 
@@ -91,6 +92,60 @@ router.post('/', upload.single('csvFile'), async (req, res) => {
 
     res.status(500).render('upload', {
       error: `Upload failed: ${error.message}`
+    });
+  }
+});
+
+// POST /upload/apollo - Handle Apollo CSV upload
+router.post('/apollo', upload.single('csvFile'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).render('upload', {
+        error: 'Please select a CSV file to upload'
+      });
+    }
+
+    const filePath = req.file.path;
+
+    // Transform Apollo CSV
+    const transformResult = await transformApolloCSV(filePath);
+
+    if (!transformResult.success || transformResult.data.length === 0) {
+      // Delete uploaded file
+      fs.unlinkSync(filePath);
+
+      return res.render('upload', {
+        error: 'Apollo CSV transformation failed',
+        errors: transformResult.errors
+      });
+    }
+
+    // Process businesses (same as standard upload)
+    const results = await processBusinesses(transformResult.data);
+
+    // Delete uploaded file after processing
+    fs.unlinkSync(filePath);
+
+    // Render results page with Apollo-specific stats
+    res.render('upload-results', {
+      inserted: results.inserted,
+      skipped: results.skipped,
+      errors: results.errors,
+      duplicates: results.duplicates,
+      totalRecords: transformResult.stats.totalRecords,
+      apolloStats: transformResult.stats // Pass Apollo-specific stats
+    });
+
+  } catch (error) {
+    console.error('Apollo upload error:', error);
+
+    // Clean up file if it exists
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+
+    res.status(500).render('upload', {
+      error: `Apollo upload failed: ${error.message}`
     });
   }
 });

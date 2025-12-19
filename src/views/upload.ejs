@@ -182,6 +182,44 @@
     .back-link:hover {
       text-decoration: underline;
     }
+
+    /* Upload Tabs */
+    .upload-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e9ecef;
+    }
+
+    .tab-button {
+      background: none;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 500;
+      color: #6c757d;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab-button:hover {
+      color: #007bff;
+    }
+
+    .tab-button.active {
+      color: #007bff;
+      border-bottom-color: #007bff;
+    }
+
+    .upload-section {
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
   </style>
 </head>
 <body>
@@ -212,27 +250,79 @@
       </div>
     <% } %>
 
-    <div class="info-box">
-      <h3>CSV Format Requirements:</h3>
-      <ul>
-        <li><strong>Required columns:</strong> <code>company_name</code>, <code>city</code>, <code>state</code></li>
-        <li><strong>Optional columns:</strong> <code>industry</code></li>
-        <li>State can be full name (e.g., "California") or abbreviation (e.g., "CA")</li>
-        <li>Supported delimiters: comma, semicolon, or tab</li>
-        <li>Duplicate businesses (same name + city + state) will be automatically skipped</li>
-      </ul>
+    <!-- Upload Type Tabs -->
+    <div class="upload-tabs">
+      <button class="tab-button active" onclick="showTab('standard')">Standard CSV</button>
+      <button class="tab-button" onclick="showTab('apollo')">Apollo Export</button>
     </div>
 
-    <form class="upload-form" action="/upload" method="POST" enctype="multipart/form-data">
-      <div class="form-group">
-        <label for="csvFile">Select CSV File:</label>
-        <input type="file" id="csvFile" name="csvFile" accept=".csv" required>
+    <!-- Standard Upload -->
+    <div id="standard-upload" class="upload-section">
+      <div class="info-box">
+        <h3>Standard CSV Format:</h3>
+        <ul>
+          <li><strong>Required columns:</strong> <code>company_name</code>, <code>city</code>, <code>state</code></li>
+          <li><strong>Optional columns:</strong> <code>industry</code></li>
+          <li>State can be full name (e.g., "California") or abbreviation (e.g., "CA")</li>
+          <li>Supported delimiters: comma, semicolon, or tab</li>
+          <li>Duplicate businesses (same name + city + state) will be automatically skipped</li>
+        </ul>
       </div>
 
-      <button type="submit">Upload and Process CSV</button>
-    </form>
+      <form class="upload-form" action="/upload" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="csvFile">Select CSV File:</label>
+          <input type="file" id="csvFile" name="csvFile" accept=".csv" required>
+        </div>
+
+        <button type="submit">Upload Standard CSV</button>
+      </form>
+    </div>
+
+    <!-- Apollo Upload -->
+    <div id="apollo-upload" class="upload-section" style="display: none;">
+      <div class="info-box" style="background-color: #e7f3ff; border-color: #2196F3;">
+        <h3>Apollo CSV Format:</h3>
+        <ul>
+          <li><strong>Automatically extracts:</strong> Company Name, Company City, Company State, Industry</li>
+          <li><strong>Also keeps:</strong> First Name, Last Name, Email for future use</li>
+          <li>Filters to <strong>US businesses only</strong></li>
+          <li>Converts full state names to 2-letter codes automatically</li>
+          <li>Normalizes industry names (lowercase, underscores)</li>
+          <li>Uses Company location fields (more accurate than contact location)</li>
+        </ul>
+      </div>
+
+      <form class="upload-form" action="/upload/apollo" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="apolloCsvFile">Select Apollo Export CSV:</label>
+          <input type="file" id="apolloCsvFile" name="csvFile" accept=".csv" required>
+        </div>
+
+        <button type="submit" style="background-color: #2196F3;">Upload Apollo CSV</button>
+      </form>
+    </div>
 
     <a href="/" class="back-link">&larr; Back to Home</a>
   </div>
+
+  <script>
+    function showTab(tabName) {
+      // Hide all upload sections
+      document.getElementById('standard-upload').style.display = 'none';
+      document.getElementById('apollo-upload').style.display = 'none';
+
+      // Remove active class from all buttons
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      // Show selected section
+      document.getElementById(tabName + '-upload').style.display = 'block';
+
+      // Add active class to clicked button
+      event.target.classList.add('active');
+    }
+  </script>
 </body>
 </html>
