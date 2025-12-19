@@ -27,14 +27,82 @@ if (!fs.existsSync(uploadsDir)) {
   console.log('✅ Created uploads directory');
 }
 
-// Test database connection on startup
-db.query('SELECT NOW()', (err, res) => {
-  if (err) {
-    console.error('❌ Database connection failed:', err);
+/**
+ * Auto-run database migrations on startup
+ * Only runs if tables don't exist yet
+ */
+async function runMigrations() {
+  try {
+    console.log('🔍 Checking database schema...');
+
+    // Check if businesses table exists
+    const tableCheck = await db.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables
+        WHERE table_schema = 'public'
+        AND table_name = 'businesses'
+      );
+    `);
+
+    const tablesExist = tableCheck.rows[0].exists;
+
+    if (tablesExist) {
+      console.log('✅ Database tables already exist - skipping migrations');
+      return;
+    }
+
+    console.log('📊 Running database migrations...');
+
+    // Migration files in order
+    const migrations = [
+      { file: '001_create_tables.sql', name: 'Create tables' },
+      { file: '002_seed_data.sql', name: 'Seed data' },
+      { file: '003_add_contact_fields.sql', name: 'Add contact fields' }
+    ];
+
+    for (const migration of migrations) {
+      try {
+        const migrationPath = path.join(__dirname, '../migrations', migration.file);
+        const sql = fs.readFileSync(migrationPath, 'utf-8');
+
+        console.log(`  ⏳ Running: ${migration.name}...`);
+        await db.query(sql);
+        console.log(`  ✅ Completed: ${migration.name}`);
+      } catch (error) {
+        console.error(`  ❌ Failed: ${migration.name}`, error.message);
+        throw error;
+      }
+    }
+
+    console.log('✅ All migrations completed successfully!');
+  } catch (error) {
+    console.error('❌ Migration failed:', error);
     process.exit(1);
   }
-  console.log('✅ Database connected at:', res.rows[0].now);
-});
+}
+
+// Initialize database and run migrations
+async function initializeApp() {
+  try {
+    // Test database connection
+    const result = await db.query('SELECT NOW()');
+    console.log('✅ Database connected at:', result.rows[0].now);
+
+    // Run migrations if needed
+    await runMigrations();
+
+    // Start server
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error('❌ App initialization failed:', error);
+    process.exit(1);
+  }
+}
+
+// Start the application
+initializeApp();
 
 // Routes
 app.use('/upload', uploadRouter);

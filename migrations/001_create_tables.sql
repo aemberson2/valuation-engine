@@ -10,6 +10,9 @@ CREATE TABLE businesses (
     industry VARCHAR(100),
     region_label VARCHAR(255) NOT NULL,
     valuation_url_slug UUID NOT NULL UNIQUE DEFAULT uuid_generate_v4(),
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    email VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     view_count INTEGER DEFAULT 0
 );
@@ -43,4 +46,5 @@ CREATE TABLE region_mappings (
 -- Create indexes for common queries
 CREATE INDEX idx_businesses_slug ON businesses(valuation_url_slug);
 CREATE INDEX idx_businesses_location ON businesses(city, state);
+CREATE INDEX idx_businesses_email ON businesses(email);
 CREATE INDEX idx_region_mappings_lookup ON region_mappings(state, city);
