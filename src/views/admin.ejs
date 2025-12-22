@@ -540,7 +540,9 @@
                 <td class="actions-cell">
                   <button
                     class="delete-btn"
-                    onclick="deleteOne('<%= business.id %>', '<%= business.company_name.replace(/'/g, "\\'") %>')"
+                    data-id="<%= business.id %>"
+                    data-name="<%= business.company_name.replace(/"/g, '&quot;') %>"
+                    onclick="deleteOne(this.dataset.id, this.dataset.name)"
                     title="Delete business"
                   >
                     🗑️
@@ -556,10 +558,10 @@
 
   <script>
     // Update column sort indicators
-    const sortBy = '<%= filters.sortBy %>';
-    const sortOrder = '<%= filters.sortOrder %>';
+    const currentSortBy = '<%= filters.sortBy %>';
+    const currentSortOrder = '<%= filters.sortOrder %>';
 
-    if (sortBy) {
+    if (currentSortBy) {
       const headers = document.querySelectorAll('th.sortable');
       headers.forEach(th => {
         const column = th.textContent.trim().toLowerCase().replace(' ', '_');
@@ -572,8 +574,8 @@
           'created': 'created_at'
         };
 
-        if (mapping[column] === sortBy) {
-          th.classList.add(sortOrder === 'asc' ? 'sorted-asc' : 'sorted-desc');
+        if (mapping[column] === currentSortBy) {
+          th.classList.add(currentSortOrder === 'asc' ? 'sorted-asc' : 'sorted-desc');
         }
       });
     }
