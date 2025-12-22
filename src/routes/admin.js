@@ -8,12 +8,12 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const {
-      batch,
-      dateFilter,
-      viewsFilter,
-      industry,
-      state,
-      search,
+      batch = '',
+      dateFilter = '',
+      viewsFilter = '',
+      industry = '',
+      state = '',
+      search = '',
       sortBy = 'created_at',
       sortOrder = 'desc'
     } = req.query;
@@ -104,8 +104,8 @@ router.get('/', async (req, res) => {
               valuation_url_slug, view_count, created_at
        FROM businesses
        ${whereClause}
-       ORDER BY ${safeSortBy} ${safeSortOrder}`
-      ,queryParams
+       ORDER BY ${safeSortBy} ${safeSortOrder}`,
+      queryParams
     );
 
     // Get total count (unfiltered)
@@ -113,15 +113,36 @@ router.get('/', async (req, res) => {
     const totalCount = parseInt(totalResult.rows[0].count);
 
     // Get unique values for filters
-    const batchesResult = await db.query(
-      'SELECT DISTINCT batch_name FROM businesses WHERE batch_name IS NOT NULL ORDER BY batch_name'
-    );
-    const industriesResult = await db.query(
-      'SELECT DISTINCT industry FROM businesses WHERE industry IS NOT NULL ORDER BY industry'
-    );
-    const statesResult = await db.query(
-      'SELECT DISTINCT state FROM businesses ORDER BY state'
-    );
+    let batches = [];
+    let industries = [];
+    let states = [];
+
+    try {
+      const batchesResult = await db.query(
+        'SELECT DISTINCT batch_name FROM businesses WHERE batch_name IS NOT NULL ORDER BY batch_name'
+      );
+      batches = batchesResult.rows.map(r => r.batch_name);
+    } catch (err) {
+      console.error('Error loading batches:', err);
+    }
+
+    try {
+      const industriesResult = await db.query(
+        'SELECT DISTINCT industry FROM businesses WHERE industry IS NOT NULL ORDER BY industry'
+      );
+      industries = industriesResult.rows.map(r => r.industry);
+    } catch (err) {
+      console.error('Error loading industries:', err);
+    }
+
+    try {
+      const statesResult = await db.query(
+        'SELECT DISTINCT state FROM businesses ORDER BY state'
+      );
+      states = statesResult.rows.map(r => r.state);
+    } catch (err) {
+      console.error('Error loading states:', err);
+    }
 
     res.render('admin', {
       businesses: result.rows,
@@ -129,23 +150,24 @@ router.get('/', async (req, res) => {
       totalCount: totalCount,
       baseUrl: process.env.BASE_URL || 'http://localhost:3000',
       filters: {
-        batch,
-        dateFilter,
-        viewsFilter,
-        industry,
-        state,
-        search,
+        batch: batch || '',
+        dateFilter: dateFilter || '',
+        viewsFilter: viewsFilter || '',
+        industry: industry || '',
+        state: state || '',
+        search: search || '',
         sortBy: safeSortBy,
         sortOrder: safeSortOrder
       },
-      batches: batchesResult.rows.map(r => r.batch_name),
-      industries: industriesResult.rows.map(r => r.industry),
-      states: statesResult.rows.map(r => r.state)
+      batches: batches,
+      industries: industries,
+      states: states
     });
 
   } catch (error) {
     console.error('Error loading admin page:', error);
-    res.status(500).send('Error loading businesses');
+    console.error('Error stack:', error.stack);
+    res.status(500).send(`Error loading businesses: ${error.message}`);
   }
 });
 
