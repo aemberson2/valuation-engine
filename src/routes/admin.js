@@ -343,4 +343,49 @@ router.post('/batch/delete', express.json(), async (req, res) => {
   }
 });
 
+// POST /admin/reset-views - Reset all view counts to 0
+router.post('/reset-views', async (req, res) => {
+  try {
+    const result = await db.query(
+      'UPDATE businesses SET view_count = 0 WHERE view_count > 0 RETURNING id'
+    );
+
+    res.json({
+      success: true,
+      count: result.rows.length,
+      message: `Reset view counts for ${result.rows.length} business${result.rows.length !== 1 ? 'es' : ''}`
+    });
+
+  } catch (error) {
+    console.error('Error resetting view counts:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /admin/business/:id/reset-views - Reset view count for single business
+router.post('/business/:id/reset-views', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await db.query(
+      'UPDATE businesses SET view_count = 0 WHERE id = $1 RETURNING company_name, view_count',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Business not found' });
+    }
+
+    res.json({
+      success: true,
+      message: `Reset view count for ${result.rows[0].company_name}`,
+      newCount: result.rows[0].view_count
+    });
+
+  } catch (error) {
+    console.error('Error resetting view count:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 module.exports = router;
