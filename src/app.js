@@ -29,7 +29,7 @@ if (!fs.existsSync(uploadsDir)) {
 
 /**
  * Auto-run database migrations on startup
- * Only runs if tables don't exist yet
+ * Runs initial migrations for new databases, and ALTER migrations for existing ones
  */
 async function runMigrations() {
   try {
@@ -46,23 +46,30 @@ async function runMigrations() {
 
     const tablesExist = tableCheck.rows[0].exists;
 
-    if (tablesExist) {
-      console.log('✅ Database tables already exist - skipping migrations');
-      return;
-    }
-
-    console.log('📊 Running database migrations...');
-
-    // Migration files in order
-    const migrations = [
+    // Initial migrations (only run on fresh databases)
+    const initialMigrations = [
       { file: '001_create_tables.sql', name: 'Create tables' },
-      { file: '002_seed_data.sql', name: 'Seed data' },
+      { file: '002_seed_data.sql', name: 'Seed data' }
+    ];
+
+    // ALTER migrations (always run, use IF NOT EXISTS so safe to re-run)
+    const alterMigrations = [
       { file: '003_add_contact_fields.sql', name: 'Add contact fields' },
       { file: '004_add_apollo_contact_id.sql', name: 'Add Apollo Contact ID' },
       { file: '005_add_batch_name.sql', name: 'Add batch name' }
     ];
 
-    for (const migration of migrations) {
+    let migrationsToRun = [];
+
+    if (!tablesExist) {
+      console.log('📊 Running initial database setup...');
+      migrationsToRun = [...initialMigrations, ...alterMigrations];
+    } else {
+      console.log('📊 Database exists - running ALTER migrations...');
+      migrationsToRun = alterMigrations;
+    }
+
+    for (const migration of migrationsToRun) {
       try {
         const migrationPath = path.join(__dirname, '../migrations', migration.file);
         const sql = fs.readFileSync(migrationPath, 'utf-8');
@@ -72,7 +79,12 @@ async function runMigrations() {
         console.log(`  ✅ Completed: ${migration.name}`);
       } catch (error) {
         console.error(`  ❌ Failed: ${migration.name}`, error.message);
-        throw error;
+        // Don't crash on ALTER migrations that might already be applied
+        if (alterMigrations.includes(migration)) {
+          console.log(`  ⚠️  Continuing despite error (column may already exist)`);
+        } else {
+          throw error;
+        }
       }
     }
 

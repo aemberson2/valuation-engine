@@ -7,6 +7,16 @@ const router = express.Router();
 // GET /admin - Show all businesses with filters and sorting
 router.get('/', async (req, res) => {
   try {
+    // Check if batch_name column exists
+    const columnCheck = await db.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.columns
+        WHERE table_name = 'businesses'
+        AND column_name = 'batch_name'
+      );
+    `);
+    const hasBatchColumn = columnCheck.rows[0].exists;
+
     const {
       batch = '',
       dateFilter = '',
@@ -23,8 +33,8 @@ router.get('/', async (req, res) => {
     const queryParams = [];
     let paramCounter = 1;
 
-    // Batch filter
-    if (batch) {
+    // Batch filter (only if column exists)
+    if (batch && hasBatchColumn) {
       whereClauses.push(`batch_name = $${paramCounter++}`);
       queryParams.push(batch);
     }
@@ -98,10 +108,15 @@ router.get('/', async (req, res) => {
     const safeSortBy = validSortColumns.includes(sortBy) ? sortBy : 'created_at';
     const safeSortOrder = sortOrder.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
-    // Get filtered businesses
+    // Get filtered businesses (conditionally include batch_name)
+    const selectColumns = hasBatchColumn
+      ? `id, company_name, city, state, industry, region_label, batch_name,
+         valuation_url_slug, view_count, created_at`
+      : `id, company_name, city, state, industry, region_label,
+         valuation_url_slug, view_count, created_at`;
+
     const result = await db.query(
-      `SELECT id, company_name, city, state, industry, region_label, batch_name,
-              valuation_url_slug, view_count, created_at
+      `SELECT ${selectColumns}
        FROM businesses
        ${whereClause}
        ORDER BY ${safeSortBy} ${safeSortOrder}`,
@@ -117,13 +132,16 @@ router.get('/', async (req, res) => {
     let industries = [];
     let states = [];
 
-    try {
-      const batchesResult = await db.query(
-        'SELECT DISTINCT batch_name FROM businesses WHERE batch_name IS NOT NULL ORDER BY batch_name'
-      );
-      batches = batchesResult.rows.map(r => r.batch_name);
-    } catch (err) {
-      console.error('Error loading batches:', err);
+    // Only query batches if column exists
+    if (hasBatchColumn) {
+      try {
+        const batchesResult = await db.query(
+          'SELECT DISTINCT batch_name FROM businesses WHERE batch_name IS NOT NULL ORDER BY batch_name'
+        );
+        batches = batchesResult.rows.map(r => r.batch_name);
+      } catch (err) {
+        console.error('Error loading batches:', err);
+      }
     }
 
     try {
