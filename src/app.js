@@ -58,7 +58,8 @@ async function runMigrations() {
       { file: '001_create_tables.sql', name: 'Create tables' },
       { file: '002_seed_data.sql', name: 'Seed data' },
       { file: '003_add_contact_fields.sql', name: 'Add contact fields' },
-      { file: '004_add_apollo_contact_id.sql', name: 'Add Apollo Contact ID' }
+      { file: '004_add_apollo_contact_id.sql', name: 'Add Apollo Contact ID' },
+      { file: '005_add_batch_name.sql', name: 'Add batch name' }
     ];
 
     for (const migration of migrations) {

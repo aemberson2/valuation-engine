@@ -68,7 +68,8 @@ router.post('/', upload.single('csvFile'), async (req, res) => {
     }
 
     // Process businesses and insert into database
-    const results = await processBusinesses(parseResult.data);
+    const batchName = req.body.batchName?.trim() || null;
+    const results = await processBusinesses(parseResult.data, batchName);
 
     // Delete uploaded file after processing
     fs.unlinkSync(filePath);
@@ -121,7 +122,8 @@ router.post('/apollo', upload.single('csvFile'), async (req, res) => {
     }
 
     // Process businesses (same as standard upload)
-    const results = await processBusinesses(transformResult.data);
+    const batchName = req.body.batchName?.trim() || null;
+    const results = await processBusinesses(transformResult.data, batchName);
 
     // Delete uploaded file after processing
     fs.unlinkSync(filePath);
@@ -153,9 +155,10 @@ router.post('/apollo', upload.single('csvFile'), async (req, res) => {
 /**
  * Process businesses: map regions, check duplicates, and insert
  * @param {Array} businesses - Array of validated business objects
+ * @param {string|null} batchName - Optional batch name for grouping uploads
  * @returns {Object} - {inserted: count, skipped: count, errors: [], duplicates: []}
  */
-async function processBusinesses(businesses) {
+async function processBusinesses(businesses, batchName = null) {
   let inserted = 0;
   let skipped = 0;
   const errors = [];
@@ -194,8 +197,9 @@ async function processBusinesses(businesses) {
           first_name,
           last_name,
           email,
-          apollo_contact_id
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+          apollo_contact_id,
+          batch_name
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
         [
           business.company_name,
           business.city,
@@ -206,7 +210,8 @@ async function processBusinesses(businesses) {
           business.first_name || null,
           business.last_name || null,
           business.email || null,
-          business.apollo_contact_id || null
+          business.apollo_contact_id || null,
+          batchName
         ]
       );
 

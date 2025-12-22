@@ -19,7 +19,7 @@
     }
 
     .container {
-      max-width: 1400px;
+      max-width: 1600px;
       margin: 0 auto;
       background: white;
       padding: 40px;
@@ -63,29 +63,31 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       flex-wrap: wrap;
-      gap: 20px;
+      gap: 15px;
     }
 
-    .header h1 {
+    h1 {
       color: #333;
       font-size: 28px;
     }
 
-    .header .count {
+    .count {
       color: #6c757d;
-      font-size: 16px;
+      font-size: 14px;
       margin-top: 5px;
     }
 
     .header-actions {
       display: flex;
-      gap: 15px;
+      gap: 10px;
+      align-items: center;
     }
 
+    /* Buttons */
     .btn {
-      padding: 12px 24px;
+      padding: 10px 20px;
       border: none;
       border-radius: 4px;
       font-size: 14px;
@@ -105,30 +107,97 @@
       background-color: #0056b3;
     }
 
-    .btn-success {
-      background-color: #28a745;
+    .btn-danger {
+      background-color: #dc3545;
       color: white;
     }
 
-    .btn-success:hover {
-      background-color: #218838;
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+
+    .btn-danger:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background-color: #545b62;
+    }
+
+    /* Filters */
+    .filters {
+      background-color: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .filter-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #495057;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .filter-group select,
+    .filter-group input {
+      padding: 8px 12px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .filter-group select:focus,
+    .filter-group input:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
     }
 
     /* Table */
     .table-container {
       overflow-x: auto;
-      margin-bottom: 20px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      background: white;
+      font-size: 14px;
+    }
+
+    thead {
+      background-color: #f8f9fa;
+      position: sticky;
+      top: 0;
     }
 
     th {
-      background-color: #f8f9fa;
-      padding: 15px;
+      padding: 12px;
       text-align: left;
       font-weight: 600;
       color: #495057;
@@ -136,8 +205,35 @@
       white-space: nowrap;
     }
 
+    th.sortable {
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+    }
+
+    th.sortable:hover {
+      background-color: #e9ecef;
+    }
+
+    th.sortable::after {
+      content: '⇅';
+      margin-left: 8px;
+      color: #adb5bd;
+      font-size: 12px;
+    }
+
+    th.sorted-asc::after {
+      content: '↑';
+      color: #007bff;
+    }
+
+    th.sorted-desc::after {
+      content: '↓';
+      color: #007bff;
+    }
+
     td {
-      padding: 15px;
+      padding: 12px;
       border-bottom: 1px solid #dee2e6;
     }
 
@@ -145,82 +241,77 @@
       background-color: #f8f9fa;
     }
 
-    .company-name {
-      font-weight: 600;
-      color: #2c3e50;
+    .checkbox-cell {
+      width: 40px;
+      text-align: center;
     }
 
-    .location {
-      color: #6c757d;
-      font-size: 14px;
+    .actions-cell {
+      width: 80px;
+      text-align: center;
     }
 
-    .industry-tag {
-      background-color: #e7f3ff;
-      color: #0066cc;
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 12px;
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #dc3545;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 4px 8px;
+      transition: color 0.2s;
+    }
+
+    .delete-btn:hover {
+      color: #c82333;
+    }
+
+    .badge {
       display: inline-block;
-      white-space: nowrap;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
     }
 
-    .view-count {
-      background-color: #f0f0f0;
-      color: #333;
-      padding: 4px 10px;
-      border-radius: 4px;
-      font-size: 13px;
-      font-weight: 600;
+    .badge-primary {
+      background-color: #e7f3ff;
+      color: #0056b3;
+    }
+
+    .badge-secondary {
+      background-color: #e9ecef;
+      color: #495057;
     }
 
     .valuation-link {
       color: #007bff;
       text-decoration: none;
-      font-size: 13px;
-      word-break: break-all;
-      display: block;
-      max-width: 250px;
+      font-size: 12px;
     }
 
     .valuation-link:hover {
       text-decoration: underline;
     }
 
-    .copy-btn {
-      background-color: #6c757d;
-      color: white;
-      border: none;
-      padding: 4px 10px;
-      border-radius: 3px;
-      font-size: 11px;
-      cursor: pointer;
-      margin-left: 8px;
-    }
-
-    .copy-btn:hover {
-      background-color: #545b62;
-    }
-
-    .date {
+    /* Batch indicator */
+    .batch-name {
+      font-size: 12px;
       color: #6c757d;
-      font-size: 13px;
+      font-style: italic;
     }
 
+    /* Empty state */
     .empty-state {
       text-align: center;
       padding: 60px 20px;
       color: #6c757d;
     }
 
-    .empty-state h2 {
-      font-size: 24px;
-      margin-bottom: 10px;
-    }
-
-    .empty-state p {
-      font-size: 16px;
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
       margin-bottom: 20px;
+      opacity: 0.5;
     }
 
     /* Responsive */
@@ -229,33 +320,16 @@
         padding: 20px;
       }
 
-      .nav-content {
-        padding: 0 20px;
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .header-actions {
-        width: 100%;
-        flex-direction: column;
-      }
-
-      .btn {
-        width: 100%;
-        text-align: center;
+      .filter-row {
+        grid-template-columns: 1fr;
       }
 
       table {
-        font-size: 13px;
+        font-size: 12px;
       }
 
       th, td {
-        padding: 10px 8px;
+        padding: 8px;
       }
     }
   </style>
@@ -275,69 +349,202 @@
     <div class="header">
       <div>
         <h1>All Businesses</h1>
-        <p class="count">Total: <%= totalCount %> business<%= totalCount !== 1 ? 'es' : '' %></p>
+        <p class="count">Showing <%= filteredCount %> of <%= totalCount %> businesses</p>
       </div>
-
       <div class="header-actions">
-        <a href="/admin/export" class="btn btn-success">📥 Export CSV for Instantly.ai</a>
-        <a href="/upload" class="btn btn-primary">+ Upload More Businesses</a>
+        <button id="deleteSelectedBtn" class="btn btn-danger" onclick="deleteSelected()" disabled>
+          Delete Selected
+        </button>
+        <a href="/admin/export" class="btn btn-primary">📥 Export CSV</a>
       </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <form id="filterForm" method="GET" action="/admin">
+        <div class="filter-row">
+          <!-- Search -->
+          <div class="filter-group">
+            <label for="search">Search</label>
+            <input
+              type="text"
+              id="search"
+              name="search"
+              placeholder="Company name..."
+              value="<%= filters.search || '' %>"
+            >
+          </div>
+
+          <!-- Batch -->
+          <div class="filter-group">
+            <label for="batch">Batch</label>
+            <select id="batch" name="batch">
+              <option value="">All Batches</option>
+              <% batches.forEach(batch => { %>
+                <option value="<%= batch %>" <%= filters.batch === batch ? 'selected' : '' %>>
+                  <%= batch %>
+                </option>
+              <% }); %>
+            </select>
+          </div>
+
+          <!-- Date -->
+          <div class="filter-group">
+            <label for="dateFilter">Date Created</label>
+            <select id="dateFilter" name="dateFilter">
+              <option value="">All Time</option>
+              <option value="today" <%= filters.dateFilter === 'today' ? 'selected' : '' %>>Today</option>
+              <option value="last7" <%= filters.dateFilter === 'last7' ? 'selected' : '' %>>Last 7 Days</option>
+              <option value="last30" <%= filters.dateFilter === 'last30' ? 'selected' : '' %>>Last 30 Days</option>
+              <option value="thisMonth" <%= filters.dateFilter === 'thisMonth' ? 'selected' : '' %>>This Month</option>
+            </select>
+          </div>
+
+          <!-- Views -->
+          <div class="filter-group">
+            <label for="viewsFilter">Views</label>
+            <select id="viewsFilter" name="viewsFilter">
+              <option value="">All</option>
+              <option value="0" <%= filters.viewsFilter === '0' ? 'selected' : '' %>>0 views</option>
+              <option value="1+" <%= filters.viewsFilter === '1+' ? 'selected' : '' %>>1+ views</option>
+              <option value="5+" <%= filters.viewsFilter === '5+' ? 'selected' : '' %>>5+ views</option>
+              <option value="10+" <%= filters.viewsFilter === '10+' ? 'selected' : '' %>>10+ views</option>
+            </select>
+          </div>
+
+          <!-- Industry -->
+          <div class="filter-group">
+            <label for="industry">Industry</label>
+            <select id="industry" name="industry">
+              <option value="">All Industries</option>
+              <% industries.forEach(ind => { %>
+                <option value="<%= ind %>" <%= filters.industry === ind ? 'selected' : '' %>>
+                  <%= ind || '(none)' %>
+                </option>
+              <% }); %>
+            </select>
+          </div>
+
+          <!-- State -->
+          <div class="filter-group">
+            <label for="state">State</label>
+            <select id="state" name="state">
+              <option value="">All States</option>
+              <% states.forEach(st => { %>
+                <option value="<%= st %>" <%= filters.state === st ? 'selected' : '' %>>
+                  <%= st %>
+                </option>
+              <% }); %>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-actions">
+          <button type="submit" class="btn btn-primary">Apply Filters</button>
+          <a href="/admin" class="btn btn-secondary">Clear Filters</a>
+        </div>
+
+        <!-- Hidden fields for sorting -->
+        <input type="hidden" name="sortBy" value="<%= filters.sortBy %>">
+        <input type="hidden" name="sortOrder" value="<%= filters.sortOrder %>">
+      </form>
     </div>
 
     <!-- Table -->
     <% if (businesses.length === 0) { %>
       <div class="empty-state">
-        <h2>No businesses yet</h2>
-        <p>Upload a CSV file to get started</p>
-        <a href="/upload" class="btn btn-primary">Upload Your First CSV</a>
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <h3>No businesses found</h3>
+        <p>Try adjusting your filters or upload some businesses to get started.</p>
       </div>
     <% } else { %>
       <div class="table-container">
         <table>
           <thead>
             <tr>
-              <th>Company Name</th>
-              <th>Location</th>
-              <th>Industry</th>
-              <th>Region</th>
-              <th>Views</th>
-              <th>Valuation Link</th>
-              <th>Created</th>
+              <th class="checkbox-cell">
+                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+              </th>
+              <th class="sortable" onclick="sortBy('company_name')">
+                Company Name
+              </th>
+              <th class="sortable" onclick="sortBy('city')">
+                City
+              </th>
+              <th class="sortable" onclick="sortBy('state')">
+                State
+              </th>
+              <th class="sortable" onclick="sortBy('industry')">
+                Industry
+              </th>
+              <th>Batch</th>
+              <th class="sortable" onclick="sortBy('view_count')">
+                Views
+              </th>
+              <th class="sortable" onclick="sortBy('created_at')">
+                Created
+              </th>
+              <th>Valuation</th>
+              <th class="actions-cell"></th>
             </tr>
           </thead>
           <tbody>
             <% businesses.forEach(business => { %>
               <tr>
-                <td class="company-name"><%= business.company_name %></td>
-                <td class="location"><%= business.city %>, <%= business.state %></td>
+                <td class="checkbox-cell">
+                  <input
+                    type="checkbox"
+                    class="business-checkbox"
+                    value="<%= business.id %>"
+                    onchange="updateDeleteButton()"
+                  >
+                </td>
+                <td><strong><%= business.company_name %></strong></td>
+                <td><%= business.city %></td>
+                <td><%= business.state %></td>
                 <td>
                   <% if (business.industry) { %>
-                    <span class="industry-tag"><%= business.industry %></span>
+                    <span class="badge badge-secondary"><%= business.industry %></span>
                   <% } else { %>
-                    <span style="color: #999;">—</span>
+                    <span style="color: #adb5bd;">—</span>
                   <% } %>
                 </td>
-                <td><%= business.region_label %></td>
                 <td>
-                  <span class="view-count"><%= business.view_count %></span>
+                  <% if (business.batch_name) { %>
+                    <span class="batch-name"><%= business.batch_name %></span>
+                  <% } else { %>
+                    <span style="color: #adb5bd;">—</span>
+                  <% } %>
                 </td>
                 <td>
-                  <a href="<%= baseUrl %>/valuation/<%= business.valuation_url_slug %>"
-                     class="valuation-link"
-                     target="_blank"
-                     title="<%= baseUrl %>/valuation/<%= business.valuation_url_slug %>">
-                    .../<%= business.valuation_url_slug.substring(0, 8) %>
+                  <% if (business.view_count > 0) { %>
+                    <span class="badge badge-primary"><%= business.view_count %></span>
+                  <% } else { %>
+                    <span style="color: #adb5bd;">0</span>
+                  <% } %>
+                </td>
+                <td>
+                  <%= new Date(business.created_at).toLocaleDateString() %>
+                </td>
+                <td>
+                  <a
+                    href="<%= baseUrl %>/valuation/<%= business.valuation_url_slug %>"
+                    target="_blank"
+                    class="valuation-link"
+                  >
+                    View →
                   </a>
-                  <button class="copy-btn" onclick="copyToClipboard('<%= baseUrl %>/valuation/<%= business.valuation_url_slug %>')">
-                    Copy
-                  </button>
                 </td>
-                <td class="date">
-                  <%= new Date(business.created_at).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                  }) %>
+                <td class="actions-cell">
+                  <button
+                    class="delete-btn"
+                    onclick="deleteOne('<%= business.id %>', '<%= business.company_name.replace(/'/g, "\\'") %>')"
+                    title="Delete business"
+                  >
+                    🗑️
+                  </button>
                 </td>
               </tr>
             <% }); %>
@@ -348,22 +555,142 @@
   </div>
 
   <script>
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        // Show brief success feedback
-        const btn = event.target;
-        const originalText = btn.textContent;
-        btn.textContent = 'Copied!';
-        btn.style.backgroundColor = '#28a745';
-        setTimeout(() => {
-          btn.textContent = originalText;
-          btn.style.backgroundColor = '';
-        }, 2000);
-      }).catch(err => {
-        console.error('Failed to copy:', err);
-        alert('Failed to copy to clipboard');
+    // Update column sort indicators
+    const sortBy = '<%= filters.sortBy %>';
+    const sortOrder = '<%= filters.sortOrder %>';
+
+    if (sortBy) {
+      const headers = document.querySelectorAll('th.sortable');
+      headers.forEach(th => {
+        const column = th.textContent.trim().toLowerCase().replace(' ', '_');
+        const mapping = {
+          'company_name': 'company_name',
+          'city': 'city',
+          'state': 'state',
+          'industry': 'industry',
+          'views': 'view_count',
+          'created': 'created_at'
+        };
+
+        if (mapping[column] === sortBy) {
+          th.classList.add(sortOrder === 'asc' ? 'sorted-asc' : 'sorted-desc');
+        }
       });
     }
+
+    // Sort function
+    function sortBy(column) {
+      const form = document.getElementById('filterForm');
+      const sortByInput = form.querySelector('input[name="sortBy"]');
+      const sortOrderInput = form.querySelector('input[name="sortOrder"]');
+
+      if (sortByInput.value === column) {
+        // Toggle order
+        sortOrderInput.value = sortOrderInput.value === 'asc' ? 'desc' : 'asc';
+      } else {
+        // New column
+        sortByInput.value = column;
+        sortOrderInput.value = column === 'created_at' ? 'desc' : 'asc';
+      }
+
+      form.submit();
+    }
+
+    // Select all checkbox
+    function toggleSelectAll() {
+      const selectAll = document.getElementById('selectAll');
+      const checkboxes = document.querySelectorAll('.business-checkbox');
+      checkboxes.forEach(cb => cb.checked = selectAll.checked);
+      updateDeleteButton();
+    }
+
+    // Update delete button state
+    function updateDeleteButton() {
+      const checkboxes = document.querySelectorAll('.business-checkbox:checked');
+      const deleteBtn = document.getElementById('deleteSelectedBtn');
+      deleteBtn.disabled = checkboxes.length === 0;
+      deleteBtn.textContent = checkboxes.length > 0
+        ? `Delete Selected (${checkboxes.length})`
+        : 'Delete Selected';
+    }
+
+    // Delete single business
+    async function deleteOne(id, name) {
+      if (!confirm(`Are you sure you want to delete "${name}"?`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/admin/business/${id}`, {
+          method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert(data.message);
+          window.location.reload();
+        } else {
+          alert('Error: ' + data.error);
+        }
+      } catch (error) {
+        alert('Error deleting business: ' + error.message);
+      }
+    }
+
+    // Delete selected businesses
+    async function deleteSelected() {
+      const checkboxes = document.querySelectorAll('.business-checkbox:checked');
+      const ids = Array.from(checkboxes).map(cb => cb.value);
+
+      if (ids.length === 0) {
+        return;
+      }
+
+      if (!confirm(`Are you sure you want to delete ${ids.length} business${ids.length !== 1 ? 'es' : ''}?`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/admin/businesses/delete-bulk', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ ids })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert(data.message);
+          window.location.reload();
+        } else {
+          alert('Error: ' + data.error);
+        }
+      } catch (error) {
+        alert('Error deleting businesses: ' + error.message);
+      }
+    }
+
+    // Auto-submit filters on change
+    const filterInputs = document.querySelectorAll('#filterForm select, #filterForm input[type="text"]');
+    filterInputs.forEach(input => {
+      if (input.type === 'text') {
+        // Debounce text input
+        let timeout;
+        input.addEventListener('input', () => {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => {
+            document.getElementById('filterForm').submit();
+          }, 500);
+        });
+      } else {
+        input.addEventListener('change', () => {
+          document.getElementById('filterForm').submit();
+        });
+      }
+    });
   </script>
 </body>
 </html>

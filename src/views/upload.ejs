@@ -100,6 +100,20 @@
       background: #f0f0f0;
     }
 
+    input[type="text"] {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+
     button {
       background-color: #007bff;
       color: white;
@@ -271,6 +285,12 @@
 
       <form class="upload-form" action="/upload" method="POST" enctype="multipart/form-data">
         <div class="form-group">
+          <label for="batchName">Batch Name (optional):</label>
+          <input type="text" id="batchName" name="batchName" placeholder="e.g., December Minneapolis Restaurants">
+          <small style="color: #6c757d; font-size: 12px; display: block; margin-top: 5px;">Group this upload for easier management and bulk deletion</small>
+        </div>
+
+        <div class="form-group">
           <label for="csvFile">Select CSV File:</label>
           <input type="file" id="csvFile" name="csvFile" accept=".csv" required>
         </div>
@@ -294,6 +314,12 @@
       </div>
 
       <form class="upload-form" action="/upload/apollo" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="apolloBatchName">Batch Name (optional):</label>
+          <input type="text" id="apolloBatchName" name="batchName" placeholder="e.g., December Minneapolis Restaurants">
+          <small style="color: #6c757d; font-size: 12px; display: block; margin-top: 5px;">Group this upload for easier management and bulk deletion</small>
+        </div>
+
         <div class="form-group">
           <label for="apolloCsvFile">Select Apollo Export CSV:</label>
           <input type="file" id="apolloCsvFile" name="csvFile" accept=".csv" required>
