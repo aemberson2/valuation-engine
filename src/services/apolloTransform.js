@@ -67,6 +67,9 @@ function normalizeIndustry(industry) {
  * @returns {Object} - {success: boolean, data: [], errors: [], stats: {}}
  */
 async function transformApolloCSV(filePath) {
+  // VERSION MARKER: v2.0 - includes contact fields (first_name, last_name, email, apollo_contact_id)
+  console.log('=== APOLLO TRANSFORM v2.0 RUNNING ===');
+
   try {
     let fileContent = fs.readFileSync(filePath, 'utf-8');
 
