@@ -109,12 +109,18 @@ router.post('/apollo', upload.single('csvFile'), async (req, res) => {
     const filePath = req.file.path;
 
     // Transform Apollo CSV
+    console.log('=== APOLLO UPLOAD ROUTE ===');
     const transformResult = await transformApolloCSV(filePath);
 
-    // DEBUG: Log transformed data
+    // DEBUG: Log transformed data received from transform
+    console.log('Transform result received in upload.js:');
+    console.log('- Success:', transformResult.success);
+    console.log('- Data length:', transformResult.data.length);
     if (transformResult.data.length > 0) {
-      console.log('=== UPLOAD.JS DEBUG ===');
-      console.log('First transformed business:', JSON.stringify(transformResult.data[0], null, 2));
+      console.log('- First business from transform:');
+      console.log(JSON.stringify(transformResult.data[0], null, 2));
+      console.log('- Has first_name key:', 'first_name' in transformResult.data[0]);
+      console.log('- first_name value:', transformResult.data[0].first_name);
     }
 
     if (!transformResult.success || transformResult.data.length === 0) {
@@ -165,6 +171,15 @@ router.post('/apollo', upload.single('csvFile'), async (req, res) => {
  * @returns {Object} - {inserted: count, skipped: count, errors: [], duplicates: []}
  */
 async function processBusinesses(businesses, batchName = null) {
+  // DEBUG: Log what processBusinesses receives
+  console.log('=== PROCESS BUSINESSES ===');
+  console.log('Number of businesses:', businesses.length);
+  if (businesses.length > 0) {
+    console.log('First business received:');
+    console.log(JSON.stringify(businesses[0], null, 2));
+    console.log('Keys in first business:', Object.keys(businesses[0]));
+  }
+
   let inserted = 0;
   let skipped = 0;
   const errors = [];

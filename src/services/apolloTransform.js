@@ -171,19 +171,39 @@ async function transformApolloCSV(filePath) {
       // Normalize industry
       const normalizedIndustry = normalizeIndustry(industry);
 
-      // Create transformed business object
-      transformedBusinesses.push({
+      // Create transformed business object with contact fields
+      const transformedBusiness = {
         company_name: companyName.trim(),
         city: city.trim(),
         state: normalizedState,
         industry: normalizedIndustry,
-        // Keep contact info for export
-        first_name: firstName ? firstName.trim() : '',
-        last_name: lastName ? lastName.trim() : '',
-        email: email ? email.trim() : '',
-        apollo_contact_id: apolloContactId ? apolloContactId.trim() : ''
-      });
+        first_name: firstName ? firstName.trim() : null,
+        last_name: lastName ? lastName.trim() : null,
+        email: email ? email.trim() : null,
+        apollo_contact_id: apolloContactId ? apolloContactId.trim() : null
+      };
+
+      // DEBUG: Log what we're adding to the array
+      if (index < 2) {
+        console.log(`=== TRANSFORMED BUSINESS ${index + 1} ===`);
+        console.log(JSON.stringify(transformedBusiness, null, 2));
+      }
+
+      transformedBusinesses.push(transformedBusiness);
     });
+
+    // DEBUG: Verify the output before returning
+    if (transformedBusinesses.length > 0) {
+      console.log('=== TRANSFORM COMPLETE ===');
+      console.log('Total transformed:', transformedBusinesses.length);
+      console.log('First business keys:', Object.keys(transformedBusinesses[0]));
+      console.log('First business contact fields:', {
+        first_name: transformedBusinesses[0].first_name,
+        last_name: transformedBusinesses[0].last_name,
+        email: transformedBusinesses[0].email,
+        apollo_contact_id: transformedBusinesses[0].apollo_contact_id
+      });
+    }
 
     return {
       success: errors.length === 0,
