@@ -111,6 +111,12 @@ router.post('/apollo', upload.single('csvFile'), async (req, res) => {
     // Transform Apollo CSV
     const transformResult = await transformApolloCSV(filePath);
 
+    // DEBUG: Log transformed data
+    if (transformResult.data.length > 0) {
+      console.log('=== UPLOAD.JS DEBUG ===');
+      console.log('First transformed business:', JSON.stringify(transformResult.data[0], null, 2));
+    }
+
     if (!transformResult.success || transformResult.data.length === 0) {
       // Delete uploaded file
       fs.unlinkSync(filePath);
@@ -185,8 +191,25 @@ async function processBusinesses(businesses, batchName = null) {
       // Generate valuation URL slug
       const valuationUrlSlug = uuidv4();
 
+      // DEBUG: Log contact fields being inserted
+      if (inserted < 3) {
+        console.log(`=== INSERT DEBUG for ${business.company_name} ===`);
+        console.log('Contact fields from business object:', {
+          first_name: business.first_name,
+          last_name: business.last_name,
+          email: business.email,
+          apollo_contact_id: business.apollo_contact_id
+        });
+        console.log('Values being inserted:', {
+          first_name: business.first_name || null,
+          last_name: business.last_name || null,
+          email: business.email || null,
+          apollo_contact_id: business.apollo_contact_id || null
+        });
+      }
+
       // Insert into businesses table (including contact fields from Apollo)
-      await db.query(
+      const insertResult = await db.query(
         `INSERT INTO businesses (
           company_name,
           city,
@@ -199,7 +222,8 @@ async function processBusinesses(businesses, batchName = null) {
           email,
           apollo_contact_id,
           batch_name
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        RETURNING id, first_name, last_name, email, apollo_contact_id`,
         [
           business.company_name,
           business.city,
@@ -214,6 +238,12 @@ async function processBusinesses(businesses, batchName = null) {
           batchName
         ]
       );
+
+      // DEBUG: Verify what was actually inserted
+      if (inserted < 3 && insertResult.rows.length > 0) {
+        console.log('=== VERIFY INSERT ===');
+        console.log('Row returned from DB:', insertResult.rows[0]);
+      }
 
       inserted++;
 

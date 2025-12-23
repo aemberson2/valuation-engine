@@ -91,21 +91,49 @@ async function transformApolloCSV(filePath) {
       invalidState: 0
     };
 
+    // DEBUG: Log first record's column names to verify exact headers
+    if (records.length > 0) {
+      console.log('=== APOLLO CSV DEBUG ===');
+      console.log('Column names found:', Object.keys(records[0]));
+      console.log('First record raw data:', JSON.stringify(records[0], null, 2));
+    }
+
     records.forEach((record, index) => {
       const lineNumber = index + 2; // +2 because index is 0-based and we skip header
 
-      // Extract fields
-      const companyName = record['Company Name'];
-      const firstName = record['First Name'];
-      const lastName = record['Last Name'];
-      const email = record['Email'];
-      const apolloContactId = record['Apollo Contact Id'];
+      // Helper function to find a field by multiple possible column names
+      const getField = (...possibleNames) => {
+        for (const name of possibleNames) {
+          if (record[name] !== undefined && record[name] !== '') {
+            return record[name];
+          }
+        }
+        return undefined;
+      };
+
+      // Extract fields - try multiple possible column name variations
+      const companyName = getField('Company Name', 'Company', 'Organization Name', 'Organization');
+      const firstName = getField('First Name', 'First name', 'first_name', 'FirstName', 'Person First Name');
+      const lastName = getField('Last Name', 'Last name', 'last_name', 'LastName', 'Person Last Name');
+      const email = getField('Email', 'email', 'E-mail', 'Person Email', 'Work Email', 'Primary Email');
+      const apolloContactId = getField('Apollo Contact Id', 'Apollo Contact ID', 'apollo_contact_id', 'Person ID', 'Contact ID', 'Apollo ID');
+
+      // DEBUG: Log contact fields for first few records
+      if (index < 3) {
+        console.log(`Record ${index + 1} contact fields:`, {
+          firstName,
+          lastName,
+          email,
+          apolloContactId,
+          companyName
+        });
+      }
 
       // Use Company City/State if available, fallback to contact City/State
-      const city = record['Company City'] || record['City'];
-      const state = record['Company State'] || record['State'];
-      const country = record['Company Country'] || record['Country'];
-      const industry = record['Industry'];
+      const city = getField('Company City', 'City', 'company_city', 'Location City');
+      const state = getField('Company State', 'State', 'company_state', 'Location State');
+      const country = getField('Company Country', 'Country', 'company_country', 'Location Country');
+      const industry = getField('Industry', 'industry', 'Company Industry');
 
       // Filter: Only US businesses
       if (!country || country.trim() !== 'United States') {
