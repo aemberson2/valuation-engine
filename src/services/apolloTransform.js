@@ -68,11 +68,17 @@ function normalizeIndustry(industry) {
  */
 async function transformApolloCSV(filePath) {
   try {
-    const fileContent = fs.readFileSync(filePath, 'utf-8');
+    let fileContent = fs.readFileSync(filePath, 'utf-8');
 
-    // Parse CSV
+    // Remove BOM (Byte Order Mark) if present - common in Windows Excel exports
+    if (fileContent.charCodeAt(0) === 0xFEFF) {
+      fileContent = fileContent.slice(1);
+    }
+
+    // Parse CSV - use columns function to trim header names
+    // (trim: true only trims values, not column headers)
     const records = parse(fileContent, {
-      columns: true,
+      columns: (header) => header.map(h => h.trim()),
       skip_empty_lines: true,
       trim: true
     });
