@@ -45,6 +45,12 @@ router.get('/', (req, res) => {
 
 // POST /upload - Handle CSV upload
 router.post('/', upload.single('csvFile'), async (req, res) => {
+  console.log('');
+  console.log('========================================');
+  console.log('=== STANDARD ROUTE HIT: /upload ===');
+  console.log('========================================');
+  console.log('');
+
   try {
     if (!req.file) {
       return res.status(400).render('upload', {
@@ -99,6 +105,12 @@ router.post('/', upload.single('csvFile'), async (req, res) => {
 
 // POST /upload/apollo - Handle Apollo CSV upload
 router.post('/apollo', upload.single('csvFile'), async (req, res) => {
+  console.log('');
+  console.log('========================================');
+  console.log('=== APOLLO ROUTE HIT: /upload/apollo ===');
+  console.log('========================================');
+  console.log('');
+
   try {
     if (!req.file) {
       return res.status(400).render('upload', {
