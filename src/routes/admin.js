@@ -194,7 +194,8 @@ router.get('/export', async (req, res) => {
   try {
     const result = await db.query(
       `SELECT id, company_name, city, state, industry, region_label,
-              valuation_url_slug, first_name, last_name, email, apollo_contact_id
+              valuation_url_slug, first_name, last_name, email, apollo_contact_id,
+              linkedin_url, company_website
        FROM businesses
        ORDER BY created_at DESC`
     );
@@ -205,7 +206,7 @@ router.get('/export', async (req, res) => {
     const csvRows = [];
 
     // Add CSV header (with contact fields first for Instantly.ai)
-    csvRows.push('first_name,last_name,email,company_name,city,state,industry,region_label,valuation_link,valuation_range_display,apollo_contact_id');
+    csvRows.push('first_name,last_name,email,company_name,city,state,industry,region_label,valuation_link,valuation_range_display,apollo_contact_id,linkedin_url,company_website');
 
     // Add business rows
     for (const business of businesses) {
@@ -237,7 +238,9 @@ router.get('/export', async (req, res) => {
           escapeCsv(business.region_label),
           escapeCsv(valuationLink),
           escapeCsv(valuationRange),
-          escapeCsv(business.apollo_contact_id || '')
+          escapeCsv(business.apollo_contact_id || ''),
+          escapeCsv(business.linkedin_url || ''),
+          escapeCsv(business.company_website || '')
         ].join(','));
 
       } catch (error) {

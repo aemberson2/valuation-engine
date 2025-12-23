@@ -56,7 +56,8 @@ async function runMigrations() {
     const alterMigrations = [
       { file: '003_add_contact_fields.sql', name: 'Add contact fields' },
       { file: '004_add_apollo_contact_id.sql', name: 'Add Apollo Contact ID' },
-      { file: '005_add_batch_name.sql', name: 'Add batch name' }
+      { file: '005_add_batch_name.sql', name: 'Add batch name' },
+      { file: '006_add_linkedin_website.sql', name: 'Add LinkedIn and Website' }
     ];
 
     let migrationsToRun = [];

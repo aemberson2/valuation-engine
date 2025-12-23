@@ -225,13 +225,9 @@ async function processBusinesses(businesses, batchName = null) {
           first_name: business.first_name,
           last_name: business.last_name,
           email: business.email,
-          apollo_contact_id: business.apollo_contact_id
-        });
-        console.log('Values being inserted:', {
-          first_name: business.first_name || null,
-          last_name: business.last_name || null,
-          email: business.email || null,
-          apollo_contact_id: business.apollo_contact_id || null
+          apollo_contact_id: business.apollo_contact_id,
+          linkedin_url: business.linkedin_url,
+          company_website: business.company_website
         });
       }
 
@@ -248,9 +244,11 @@ async function processBusinesses(businesses, batchName = null) {
           last_name,
           email,
           apollo_contact_id,
+          linkedin_url,
+          company_website,
           batch_name
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-        RETURNING id, first_name, last_name, email, apollo_contact_id`,
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+        RETURNING id, first_name, last_name, email, apollo_contact_id, linkedin_url, company_website`,
         [
           business.company_name,
           business.city,
@@ -262,6 +260,8 @@ async function processBusinesses(businesses, batchName = null) {
           business.last_name || null,
           business.email || null,
           business.apollo_contact_id || null,
+          business.linkedin_url || null,
+          business.company_website || null,
           batchName
         ]
       );

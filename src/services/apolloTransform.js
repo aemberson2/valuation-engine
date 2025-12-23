@@ -120,6 +120,8 @@ async function transformApolloCSV(filePath) {
       const lastName = getField('Last Name', 'Last name', 'last_name', 'LastName', 'Person Last Name');
       const email = getField('Email', 'email', 'E-mail', 'Person Email', 'Work Email', 'Primary Email');
       const apolloContactId = getField('Apollo Contact Id', 'Apollo Contact ID', 'apollo_contact_id', 'Person ID', 'Contact ID', 'Apollo ID');
+      const linkedinUrl = getField('Person Linkedin Url', 'LinkedIn URL', 'LinkedIn', 'Linkedin Url', 'Person LinkedIn URL');
+      const companyWebsite = getField('Website', 'Company Website', 'website', 'Website URL', 'Company URL');
 
       // DEBUG: Log contact fields for first few records
       if (index < 3) {
@@ -128,6 +130,8 @@ async function transformApolloCSV(filePath) {
           lastName,
           email,
           apolloContactId,
+          linkedinUrl,
+          companyWebsite,
           companyName
         });
       }
@@ -183,7 +187,9 @@ async function transformApolloCSV(filePath) {
         first_name: firstName ? firstName.trim() : null,
         last_name: lastName ? lastName.trim() : null,
         email: email ? email.trim() : null,
-        apollo_contact_id: apolloContactId ? apolloContactId.trim() : null
+        apollo_contact_id: apolloContactId ? apolloContactId.trim() : null,
+        linkedin_url: linkedinUrl ? linkedinUrl.trim() : null,
+        company_website: companyWebsite ? companyWebsite.trim() : null
       };
 
       // DEBUG: Log what we're adding to the array
@@ -204,7 +210,9 @@ async function transformApolloCSV(filePath) {
         first_name: transformedBusinesses[0].first_name,
         last_name: transformedBusinesses[0].last_name,
         email: transformedBusinesses[0].email,
-        apollo_contact_id: transformedBusinesses[0].apollo_contact_id
+        apollo_contact_id: transformedBusinesses[0].apollo_contact_id,
+        linkedin_url: transformedBusinesses[0].linkedin_url,
+        company_website: transformedBusinesses[0].company_website
       });
     }
 
