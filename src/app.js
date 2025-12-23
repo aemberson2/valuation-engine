@@ -57,7 +57,8 @@ async function runMigrations() {
       { file: '003_add_contact_fields.sql', name: 'Add contact fields' },
       { file: '004_add_apollo_contact_id.sql', name: 'Add Apollo Contact ID' },
       { file: '005_add_batch_name.sql', name: 'Add batch name' },
-      { file: '006_add_linkedin_website.sql', name: 'Add LinkedIn and Website' }
+      { file: '006_add_linkedin_website.sql', name: 'Add LinkedIn and Website' },
+      { file: '007_add_url_slug.sql', name: 'Add URL slug' }
     ];
 
     let migrationsToRun = [];
@@ -96,6 +97,78 @@ async function runMigrations() {
   }
 }
 
+/**
+ * Generate URL slugs for existing businesses that don't have one
+ */
+async function generateMissingSlugs() {
+  try {
+    // Check if url_slug column exists
+    const columnCheck = await db.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.columns
+        WHERE table_name = 'businesses'
+        AND column_name = 'url_slug'
+      );
+    `);
+
+    if (!columnCheck.rows[0].exists) {
+      console.log('⏭️  url_slug column not yet created, skipping slug generation');
+      return;
+    }
+
+    // Find businesses without slugs
+    const result = await db.query(
+      'SELECT id, company_name FROM businesses WHERE url_slug IS NULL'
+    );
+
+    if (result.rows.length === 0) {
+      console.log('✅ All businesses have URL slugs');
+      return;
+    }
+
+    console.log(`🔧 Generating slugs for ${result.rows.length} existing businesses...`);
+
+    // Import slug generator
+    const { generateSlug, generateRandomSuffix } = require('./services/slugGenerator');
+
+    for (const business of result.rows) {
+      let baseSlug = generateSlug(business.company_name);
+      if (!baseSlug) {
+        baseSlug = `business-${generateRandomSuffix()}`;
+      }
+
+      let slug = baseSlug;
+      let attempts = 0;
+
+      // Find a unique slug
+      while (attempts < 10) {
+        const existing = await db.query(
+          'SELECT id FROM businesses WHERE url_slug = $1 LIMIT 1',
+          [slug]
+        );
+
+        if (existing.rows.length === 0) {
+          break;
+        }
+
+        slug = `${baseSlug}-${generateRandomSuffix()}`;
+        attempts++;
+      }
+
+      // Update the business with the new slug
+      await db.query(
+        'UPDATE businesses SET url_slug = $1 WHERE id = $2',
+        [slug, business.id]
+      );
+    }
+
+    console.log(`✅ Generated slugs for ${result.rows.length} businesses`);
+  } catch (error) {
+    console.error('⚠️  Error generating slugs:', error.message);
+    // Don't exit - this is not critical
+  }
+}
+
 // Initialize database and run migrations
 async function initializeApp() {
   try {
@@ -105,6 +178,9 @@ async function initializeApp() {
 
     // Run migrations if needed
     await runMigrations();
+
+    // Generate slugs for existing businesses
+    await generateMissingSlugs();
 
     // Start server
     const server = app.listen(PORT, '0.0.0.0', () => {
@@ -129,7 +205,8 @@ async function initializeApp() {
 
 // Routes (must be defined before initializeApp)
 app.use('/upload', uploadRouter);
-app.use('/valuation', valuationRouter);
+app.use('/valuation', valuationRouter);  // Old UUID-based URLs: /valuation/:uuid
+app.use('/v', valuationRouter);          // New clean URLs: /v/:slug
 app.use('/admin', adminRouter);
 
 // Health check endpoint for Railway

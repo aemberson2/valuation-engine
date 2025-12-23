@@ -194,7 +194,7 @@ router.get('/export', async (req, res) => {
   try {
     const result = await db.query(
       `SELECT id, company_name, city, state, industry, region_label,
-              valuation_url_slug, first_name, last_name, email, apollo_contact_id,
+              valuation_url_slug, url_slug, first_name, last_name, email, apollo_contact_id,
               linkedin_url, company_website
        FROM businesses
        ORDER BY created_at DESC`
@@ -214,7 +214,10 @@ router.get('/export', async (req, res) => {
         const valuation = await calculateValuation(business);
 
         const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
-        const valuationLink = `${baseUrl}/valuation/${business.valuation_url_slug}`;
+        // Use clean URL slug if available, fallback to old UUID format
+        const valuationLink = business.url_slug
+          ? `${baseUrl}/v/${business.url_slug}`
+          : `${baseUrl}/valuation/${business.valuation_url_slug}`;
         const valuationRange = `${valuation.formatted.valuation_low} - ${valuation.formatted.valuation_high}`;
 
         // Escape fields for CSV (wrap in quotes and escape internal quotes)

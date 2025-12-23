@@ -7,6 +7,7 @@ const db = require('../config/database');
 const { parseCSV } = require('../services/csvParser');
 const { mapRegion } = require('../services/regionMapper');
 const { transformApolloCSV } = require('../services/apolloTransform');
+const { generateUniqueSlug } = require('../services/slugGenerator');
 
 const router = express.Router();
 
@@ -215,12 +216,16 @@ async function processBusinesses(businesses, batchName = null) {
       // Map region
       const regionData = await mapRegion(business.city, business.state);
 
-      // Generate valuation URL slug
+      // Generate valuation URL slug (UUID for backwards compatibility)
       const valuationUrlSlug = uuidv4();
+
+      // Generate clean URL slug from company name
+      const urlSlug = await generateUniqueSlug(business.company_name, db);
 
       // DEBUG: Log contact fields being inserted
       if (inserted < 3) {
         console.log(`=== INSERT DEBUG for ${business.company_name} ===`);
+        console.log('URL slug generated:', urlSlug);
         console.log('Contact fields from business object:', {
           first_name: business.first_name,
           last_name: business.last_name,
@@ -240,6 +245,7 @@ async function processBusinesses(businesses, batchName = null) {
           industry,
           region_label,
           valuation_url_slug,
+          url_slug,
           first_name,
           last_name,
           email,
@@ -247,8 +253,8 @@ async function processBusinesses(businesses, batchName = null) {
           linkedin_url,
           company_website,
           batch_name
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-        RETURNING id, first_name, last_name, email, apollo_contact_id, linkedin_url, company_website`,
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+        RETURNING id, url_slug, first_name, last_name, email, apollo_contact_id, linkedin_url, company_website`,
         [
           business.company_name,
           business.city,
@@ -256,6 +262,7 @@ async function processBusinesses(businesses, batchName = null) {
           business.industry,
           regionData.region_label,
           valuationUrlSlug,
+          urlSlug,
           business.first_name || null,
           business.last_name || null,
           business.email || null,
