@@ -647,7 +647,7 @@
                 </td>
                 <td>
                   <a
-                    href="<%= baseUrl %>/valuation/<%= business.valuation_url_slug %>"
+                    href="<%= baseUrl %><%= business.url_slug ? '/v/' + business.url_slug : '/valuation/' + business.valuation_url_slug %>"
                     target="_blank"
                     class="valuation-link"
                   >
