@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('../config/database');
 const { calculateValuation } = require('../services/valuationEngine');
+const { generateUniqueSlug } = require('../services/slugGenerator');
 
 const router = express.Router();
 
@@ -345,6 +346,73 @@ router.post('/batch/delete', express.json(), async (req, res) => {
 
   } catch (error) {
     console.error('Error deleting batch:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// GET /admin/business/:id/edit - Get business data for editing
+router.get('/business/:id/edit', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await db.query(
+      'SELECT id, company_name, city, state, industry FROM businesses WHERE id = $1',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Business not found' });
+    }
+
+    res.json({ success: true, business: result.rows[0] });
+
+  } catch (error) {
+    console.error('Error fetching business for edit:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /admin/business/:id/edit - Save business edits
+router.post('/business/:id/edit', express.json(), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { company_name, city, state, industry } = req.body;
+
+    // Get current business data to check if company_name changed
+    const currentResult = await db.query(
+      'SELECT company_name, url_slug FROM businesses WHERE id = $1',
+      [id]
+    );
+
+    if (currentResult.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Business not found' });
+    }
+
+    const currentBusiness = currentResult.rows[0];
+    let newSlug = currentBusiness.url_slug;
+
+    // If company_name changed, regenerate the url_slug
+    if (company_name && company_name !== currentBusiness.company_name) {
+      newSlug = await generateUniqueSlug(company_name, db);
+    }
+
+    // Update the business
+    const updateResult = await db.query(
+      `UPDATE businesses
+       SET company_name = $1, city = $2, state = $3, industry = $4, url_slug = $5
+       WHERE id = $6
+       RETURNING id, company_name`,
+      [company_name, city, state, industry, newSlug, id]
+    );
+
+    res.json({
+      success: true,
+      message: `Updated ${updateResult.rows[0].company_name}`,
+      business: updateResult.rows[0]
+    });
+
+  } catch (error) {
+    console.error('Error updating business:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

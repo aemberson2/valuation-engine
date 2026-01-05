@@ -314,6 +314,112 @@
       opacity: 0.5;
     }
 
+    /* Edit button */
+    .edit-btn {
+      background: none;
+      border: none;
+      color: #007bff;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 4px 8px;
+      transition: color 0.2s;
+    }
+
+    .edit-btn:hover {
+      color: #0056b3;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 8px;
+      padding: 30px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 20px;
+      color: #333;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #6c757d;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 5px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 25px;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .container {
@@ -550,6 +656,14 @@
                 </td>
                 <td class="actions-cell">
                   <button
+                    class="edit-btn"
+                    data-id="<%= business.id %>"
+                    onclick="openEditModal(this.dataset.id)"
+                    title="Edit business"
+                  >
+                    ✏️
+                  </button>
+                  <button
                     class="delete-btn"
                     data-id="<%= business.id %>"
                     data-name="<%= business.company_name.replace(/"/g, '&quot;') %>"
@@ -565,6 +679,39 @@
         </table>
       </div>
     <% } %>
+  </div>
+
+  <!-- Edit Modal -->
+  <div id="editModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Edit Business</h2>
+        <button class="modal-close" onclick="closeEditModal()">&times;</button>
+      </div>
+      <form id="editForm">
+        <input type="hidden" id="editBusinessId">
+        <div class="form-group">
+          <label for="editCompanyName">Company Name</label>
+          <input type="text" id="editCompanyName" name="company_name" required>
+        </div>
+        <div class="form-group">
+          <label for="editCity">City</label>
+          <input type="text" id="editCity" name="city">
+        </div>
+        <div class="form-group">
+          <label for="editState">State</label>
+          <input type="text" id="editState" name="state">
+        </div>
+        <div class="form-group">
+          <label for="editIndustry">Industry</label>
+          <input type="text" id="editIndustry" name="industry">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script>
@@ -750,6 +897,76 @@
         input.addEventListener('change', () => {
           document.getElementById('filterForm').submit();
         });
+      }
+    });
+
+    // Edit modal functions
+    async function openEditModal(id) {
+      try {
+        const response = await fetch(`/admin/business/${id}/edit`);
+        const data = await response.json();
+
+        if (!data.success) {
+          alert('Error: ' + data.error);
+          return;
+        }
+
+        const business = data.business;
+        document.getElementById('editBusinessId').value = business.id;
+        document.getElementById('editCompanyName').value = business.company_name || '';
+        document.getElementById('editCity').value = business.city || '';
+        document.getElementById('editState').value = business.state || '';
+        document.getElementById('editIndustry').value = business.industry || '';
+
+        document.getElementById('editModal').classList.add('active');
+      } catch (error) {
+        alert('Error loading business: ' + error.message);
+      }
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').classList.remove('active');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('editModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeEditModal();
+      }
+    });
+
+    // Handle edit form submission
+    document.getElementById('editForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const id = document.getElementById('editBusinessId').value;
+      const formData = {
+        company_name: document.getElementById('editCompanyName').value,
+        city: document.getElementById('editCity').value,
+        state: document.getElementById('editState').value,
+        industry: document.getElementById('editIndustry').value
+      };
+
+      try {
+        const response = await fetch(`/admin/business/${id}/edit`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert(data.message);
+          closeEditModal();
+          window.location.reload();
+        } else {
+          alert('Error: ' + data.error);
+        }
+      } catch (error) {
+        alert('Error saving changes: ' + error.message);
       }
     });
   </script>
