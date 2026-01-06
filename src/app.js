@@ -58,7 +58,8 @@ async function runMigrations() {
       { file: '004_add_apollo_contact_id.sql', name: 'Add Apollo Contact ID' },
       { file: '005_add_batch_name.sql', name: 'Add batch name' },
       { file: '006_add_linkedin_website.sql', name: 'Add LinkedIn and Website' },
-      { file: '007_add_url_slug.sql', name: 'Add URL slug' }
+      { file: '007_add_url_slug.sql', name: 'Add URL slug' },
+      { file: '008_add_custom_revenue.sql', name: 'Add custom revenue' }
     ];
 
     let migrationsToRun = [];
