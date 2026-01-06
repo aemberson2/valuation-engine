@@ -6,9 +6,10 @@ const db = require('../config/database');
  * Logic:
  * 1. Lookup industry assumptions (or use "generic" fallback)
  * 2. Lookup region modifier from region_mappings (or default to 1.0)
- * 3. Calculate valuation range based on formulas
+ * 3. Use custom_revenue if provided, otherwise use industry average
+ * 4. Calculate valuation range based on formulas
  *
- * @param {Object} business - Business object with company_name, city, state, industry, region_label
+ * @param {Object} business - Business object with company_name, city, state, industry, region_label, custom_revenue
  * @returns {Promise<Object>} - Valuation breakdown object
  */
 async function calculateValuation(business) {
@@ -19,8 +20,11 @@ async function calculateValuation(business) {
     // 2. Lookup regional modifier
     const regionalModifier = await getRegionalModifier(business.city, business.state);
 
-    // 3. Calculate valuation
-    const baseRevenue = assumptions.estimated_revenue;
+    // 3. Determine revenue: use custom_revenue if set, otherwise use industry average
+    const hasCustomRevenue = business.custom_revenue !== null && business.custom_revenue !== undefined;
+    const baseRevenue = hasCustomRevenue ? business.custom_revenue : assumptions.estimated_revenue;
+
+    // 4. Calculate valuation
     const baseSDE = baseRevenue * assumptions.sde_margin_pct;
     const adjustedSDE = baseSDE * regionalModifier;
     const valuationLow = adjustedSDE * assumptions.multiple_low;
@@ -36,7 +40,7 @@ async function calculateValuation(business) {
         region_label: business.region_label
       },
       assumptions: {
-        estimated_revenue: baseRevenue,
+        estimated_revenue: assumptions.estimated_revenue,
         sde_margin_pct: assumptions.sde_margin_pct,
         multiple_low: assumptions.multiple_low,
         multiple_base: assumptions.multiple_base,
@@ -45,6 +49,8 @@ async function calculateValuation(business) {
       },
       calculations: {
         base_revenue: baseRevenue,
+        custom_revenue: hasCustomRevenue ? business.custom_revenue : null,
+        uses_custom_revenue: hasCustomRevenue,
         base_sde: baseSDE,
         regional_modifier: regionalModifier,
         adjusted_sde: adjustedSDE,

@@ -391,10 +391,10 @@
       <h3>How We Calculated This:</h3>
       <div class="breakdown-table">
         <div class="breakdown-row">
-          <span class="label">Estimated Annual Revenue</span>
+          <span class="label"><%= valuation.calculations.uses_custom_revenue ? 'Annual Revenue' : 'Estimated Annual Revenue' %></span>
           <span class="value">
             <%= valuation.formatted.base_revenue %>
-            <span class="note">(industry average for your region)</span>
+            <span class="note">(<%= valuation.calculations.uses_custom_revenue ? 'provided' : 'industry average' %>)</span>
           </span>
         </div>
 
@@ -427,12 +427,21 @@
 
     <!-- Confidence Statement -->
     <div class="confidence">
-      <h4>Confidence Level: Low</h4>
-      <p>
-        We don't have your actual financial data, so this is a conservative starting point.
-        The actual value of your business depends on your real revenue, profitability, growth trends,
-        assets, customer concentration, and many other factors.
-      </p>
+      <% if (valuation.calculations.uses_custom_revenue) { %>
+        <h4>Confidence Level: Medium</h4>
+        <p>
+          This estimate uses your provided revenue figure.
+          The actual value of your business also depends on profitability, growth trends,
+          assets, customer concentration, and other factors.
+        </p>
+      <% } else { %>
+        <h4>Confidence Level: Low</h4>
+        <p>
+          We don't have your actual financial data, so this is a conservative starting point.
+          The actual value of your business depends on your real revenue, profitability, growth trends,
+          assets, customer concentration, and many other factors.
+        </p>
+      <% } %>
     </div>
 
     <!-- Correction Invitation CTA -->

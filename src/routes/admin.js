@@ -112,9 +112,9 @@ router.get('/', async (req, res) => {
     // Get filtered businesses (conditionally include batch_name)
     const selectColumns = hasBatchColumn
       ? `id, company_name, city, state, industry, region_label, batch_name,
-         valuation_url_slug, url_slug, view_count, created_at`
+         valuation_url_slug, url_slug, view_count, created_at, custom_revenue`
       : `id, company_name, city, state, industry, region_label,
-         valuation_url_slug, url_slug, view_count, created_at`;
+         valuation_url_slug, url_slug, view_count, created_at, custom_revenue`;
 
     const result = await db.query(
       `SELECT ${selectColumns}
@@ -196,7 +196,7 @@ router.get('/export', async (req, res) => {
     const result = await db.query(
       `SELECT id, company_name, city, state, industry, region_label,
               valuation_url_slug, url_slug, first_name, last_name, email, apollo_contact_id,
-              linkedin_url, company_website
+              linkedin_url, company_website, custom_revenue
        FROM businesses
        ORDER BY created_at DESC`
     );
@@ -356,7 +356,7 @@ router.get('/business/:id/edit', async (req, res) => {
     const { id } = req.params;
 
     const result = await db.query(
-      'SELECT id, company_name, city, state, industry FROM businesses WHERE id = $1',
+      'SELECT id, company_name, city, state, industry, custom_revenue FROM businesses WHERE id = $1',
       [id]
     );
 
@@ -376,7 +376,7 @@ router.get('/business/:id/edit', async (req, res) => {
 router.post('/business/:id/edit', express.json(), async (req, res) => {
   try {
     const { id } = req.params;
-    const { company_name, city, state, industry } = req.body;
+    const { company_name, city, state, industry, custom_revenue } = req.body;
 
     // Get current business data to check if company_name changed
     const currentResult = await db.query(
@@ -396,13 +396,18 @@ router.post('/business/:id/edit', express.json(), async (req, res) => {
       newSlug = await generateUniqueSlug(company_name, db);
     }
 
+    // Parse custom_revenue: empty string or null means use industry average
+    const parsedCustomRevenue = custom_revenue && custom_revenue !== ''
+      ? parseInt(custom_revenue, 10)
+      : null;
+
     // Update the business
     const updateResult = await db.query(
       `UPDATE businesses
-       SET company_name = $1, city = $2, state = $3, industry = $4, url_slug = $5
-       WHERE id = $6
+       SET company_name = $1, city = $2, state = $3, industry = $4, url_slug = $5, custom_revenue = $6
+       WHERE id = $7
        RETURNING id, company_name`,
-      [company_name, city, state, industry, newSlug, id]
+      [company_name, city, state, industry, newSlug, parsedCustomRevenue, id]
     );
 
     res.json({

@@ -40,7 +40,7 @@ router.get('/:slug', async (req, res) => {
     // First try to find by clean url_slug
     let result = await db.query(
       `SELECT id, company_name, city, state, industry, region_label,
-              valuation_url_slug, url_slug, view_count
+              valuation_url_slug, url_slug, view_count, custom_revenue
        FROM businesses
        WHERE url_slug = $1
        LIMIT 1`,
@@ -51,7 +51,7 @@ router.get('/:slug', async (req, res) => {
     if (result.rows.length === 0) {
       result = await db.query(
         `SELECT id, company_name, city, state, industry, region_label,
-                valuation_url_slug, url_slug, view_count
+                valuation_url_slug, url_slug, view_count, custom_revenue
          FROM businesses
          WHERE valuation_url_slug = $1
          LIMIT 1`,
