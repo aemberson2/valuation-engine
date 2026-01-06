@@ -394,7 +394,9 @@
           <span class="label"><%= valuation.calculations.uses_custom_revenue ? 'Annual Revenue' : 'Estimated Annual Revenue' %></span>
           <span class="value">
             <%= valuation.formatted.base_revenue %>
-            <span class="note">(<%= valuation.calculations.uses_custom_revenue ? 'provided' : 'industry average' %>)</span>
+            <% if (!valuation.calculations.uses_custom_revenue) { %>
+              <span class="note">(industry average)</span>
+            <% } %>
           </span>
         </div>
 
@@ -427,29 +429,24 @@
 
     <!-- Confidence Statement -->
     <div class="confidence">
-      <% if (valuation.calculations.uses_custom_revenue) { %>
-        <h4>Confidence Level: Medium</h4>
-        <p>
-          This estimate uses your provided revenue figure.
-          The actual value of your business also depends on profitability, growth trends,
-          assets, customer concentration, and other factors.
-        </p>
-      <% } else { %>
-        <h4>Confidence Level: Low</h4>
-        <p>
-          We don't have your actual financial data, so this is a conservative starting point.
-          The actual value of your business depends on your real revenue, profitability, growth trends,
-          assets, customer concentration, and many other factors.
-        </p>
-      <% } %>
+      <h4>Confidence Level: Low</h4>
+      <p>
+        We don't have your actual financial data, so this is a conservative starting point.
+        The actual value of your business depends on your real revenue, profitability, growth trends,
+        assets, customer concentration, and many other factors.
+      </p>
     </div>
 
     <!-- Correction Invitation CTA -->
     <div class="cta-box">
       <h3>Something Off?</h3>
       <p>
-        We've estimated conservatively since we don't have your numbers.<br>
-        If your revenue, margins, or industry classification don't match, reply and we'll revise.
+        <% if (valuation.calculations.uses_custom_revenue) { %>
+          If your revenue, margins, or industry classification don't match, reply and we'll revise.
+        <% } else { %>
+          We've estimated conservatively since we don't have your numbers.
+          If your revenue, margins, or industry classification don't match, reply and we'll revise.
+        <% } %>
       </p>
       <a href="mailto:aemberson@tworld.com?subject=Valuation%20Correction%20for%20<%= encodeURIComponent(valuation.business.company_name) %>"
          class="cta-button">
