@@ -68,6 +68,7 @@ router.get('/', async (req, res) => {
 
     // Views filter
     let viewsSortOverride = null;
+    console.log('[DEBUG] viewsFilter received:', viewsFilter);
     if (viewsFilter) {
       switch(viewsFilter) {
         case '0':
@@ -84,12 +85,15 @@ router.get('/', async (req, res) => {
           break;
         case 'most':
           viewsSortOverride = { column: 'view_count', order: 'DESC' };
+          console.log('[DEBUG] Setting viewsSortOverride to DESC');
           break;
         case 'least':
           viewsSortOverride = { column: 'view_count', order: 'ASC' };
+          console.log('[DEBUG] Setting viewsSortOverride to ASC');
           break;
       }
     }
+    console.log('[DEBUG] viewsSortOverride after switch:', viewsSortOverride);
 
     // Industry filter
     if (industry) {
@@ -120,7 +124,9 @@ router.get('/', async (req, res) => {
     if (viewsSortOverride) {
       safeSortBy = viewsSortOverride.column;
       safeSortOrder = viewsSortOverride.order;
+      console.log('[DEBUG] Applied viewsSortOverride - safeSortBy:', safeSortBy, 'safeSortOrder:', safeSortOrder);
     }
+    console.log('[DEBUG] Final sort: ORDER BY', safeSortBy, safeSortOrder);
 
     // Get filtered businesses (conditionally include batch_name)
     const selectColumns = hasBatchColumn
@@ -207,6 +213,8 @@ router.get('/', async (req, res) => {
 router.get('/export', async (req, res) => {
   try {
     const { batch } = req.query;
+    console.log('[DEBUG] Export route - batch parameter:', batch);
+    console.log('[DEBUG] Export route - full query params:', req.query);
 
     let query = `SELECT id, company_name, city, state, industry, region_label,
               valuation_url_slug, url_slug, first_name, last_name, email, apollo_contact_id,
@@ -218,11 +226,14 @@ router.get('/export', async (req, res) => {
     if (batch) {
       query += ' WHERE batch_name = $1';
       queryParams.push(batch);
+      console.log('[DEBUG] Export filtering by batch:', batch);
     }
 
     query += ' ORDER BY created_at DESC';
+    console.log('[DEBUG] Export query:', query);
 
     const result = await db.query(query, queryParams);
+    console.log('[DEBUG] Export found', result.rows.length, 'businesses');
 
     const businesses = result.rows;
 

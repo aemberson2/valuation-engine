@@ -259,6 +259,11 @@ async function transformApolloCSV(filePath) {
       // Standardize company name (title case, remove suffixes, clean spaces)
       const standardizedName = standardizeCompanyName(companyName);
 
+      // DEBUG: Log company name standardization for first few records
+      if (index < 5) {
+        console.log(`[DEBUG] Company name standardization: "${companyName}" → "${standardizedName}"`);
+      }
+
       // Create transformed business object with contact fields
       const transformedBusiness = {
         company_name: standardizedName,
