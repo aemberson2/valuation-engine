@@ -191,6 +191,8 @@ async function processBusinesses(businesses, batchName = null) {
     console.log('First business received:');
     console.log(JSON.stringify(businesses[0], null, 2));
     console.log('Keys in first business:', Object.keys(businesses[0]));
+    console.log('*** custom_revenue in first business:', businesses[0].custom_revenue);
+    console.log('*** Has custom_revenue key:', 'custom_revenue' in businesses[0]);
   }
 
   let inserted = 0;
@@ -234,6 +236,7 @@ async function processBusinesses(businesses, batchName = null) {
           linkedin_url: business.linkedin_url,
           company_website: business.company_website
         });
+        console.log('*** CUSTOM REVENUE from business object:', business.custom_revenue);
       }
 
       // Insert into businesses table (including contact fields from Apollo)
