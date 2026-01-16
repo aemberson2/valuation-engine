@@ -50,6 +50,71 @@ function normalizeIndustry(industry) {
 }
 
 /**
+ * Standardize company name:
+ * 1. Convert to title case (preserving McDonald's style names)
+ * 2. Remove common business suffixes (Inc., LLC, etc.)
+ * 3. Clean up extra spaces
+ */
+function standardizeCompanyName(name) {
+  if (!name) return null;
+
+  // First, trim and clean up multiple spaces
+  let cleaned = name.trim().replace(/\s+/g, ' ');
+
+  // Remove common business suffixes (case-insensitive)
+  const suffixPatterns = [
+    /,?\s*Inc\.?$/i,
+    /,?\s*LLC$/i,
+    /,?\s*L\.L\.C\.?$/i,
+    /,?\s*Ltd\.?$/i,
+    /,?\s*Corp\.?$/i,
+    /,?\s*Co\.?$/i,
+    /,?\s*Incorporated$/i,
+    /,?\s*Corporation$/i,
+    /,?\s*Limited$/i,
+    /,?\s*Company$/i
+  ];
+
+  for (const pattern of suffixPatterns) {
+    cleaned = cleaned.replace(pattern, '');
+  }
+
+  // Trim again after removing suffixes
+  cleaned = cleaned.trim();
+
+  // Convert to title case
+  // Split on spaces and handle each word
+  cleaned = cleaned.split(' ').map(word => {
+    // Skip empty words
+    if (!word) return word;
+
+    // Check for special patterns that should preserve their case
+    // McDonald's, O'Brien, etc. - words with apostrophes after first letter
+    if (/^[A-Za-z][A-Za-z]?'[A-Za-z]/i.test(word)) {
+      // Handle McDonald's style: first letter + letter + apostrophe + rest
+      const apostropheIndex = word.indexOf("'");
+      if (apostropheIndex > 0) {
+        const beforeApostrophe = word.substring(0, apostropheIndex);
+        const afterApostrophe = word.substring(apostropheIndex + 1);
+        return beforeApostrophe.charAt(0).toUpperCase() +
+               beforeApostrophe.slice(1).toLowerCase() +
+               "'" +
+               afterApostrophe.charAt(0).toUpperCase() +
+               afterApostrophe.slice(1).toLowerCase();
+      }
+    }
+
+    // Standard title case: capitalize first letter, lowercase the rest
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  }).join(' ');
+
+  // Final cleanup of any double spaces that might have been created
+  cleaned = cleaned.replace(/\s+/g, ' ').trim();
+
+  return cleaned;
+}
+
+/**
  * Transform Apollo CSV to our format
  *
  * Maps:
@@ -191,9 +256,12 @@ async function transformApolloCSV(filePath) {
         }
       }
 
+      // Standardize company name (title case, remove suffixes, clean spaces)
+      const standardizedName = standardizeCompanyName(companyName);
+
       // Create transformed business object with contact fields
       const transformedBusiness = {
-        company_name: companyName.trim(),
+        company_name: standardizedName,
         city: city.trim(),
         state: normalizedState,
         industry: normalizedIndustry,
@@ -264,5 +332,6 @@ async function transformApolloCSV(filePath) {
 module.exports = {
   transformApolloCSV,
   normalizeState,
-  normalizeIndustry
+  normalizeIndustry,
+  standardizeCompanyName
 };

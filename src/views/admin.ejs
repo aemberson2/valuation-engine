@@ -464,7 +464,7 @@
         <button class="btn btn-secondary" onclick="resetAllViews()">
           🔄 Reset All Views
         </button>
-        <a href="/admin/export" class="btn btn-primary">📥 Export CSV</a>
+        <a href="/admin/export<%= filters.batch ? '?batch=' + encodeURIComponent(filters.batch) : '' %>" class="btn btn-primary">📥 Export CSV</a>
       </div>
     </div>
 
@@ -518,6 +518,8 @@
               <option value="1+" <%= filters.viewsFilter === '1+' ? 'selected' : '' %>>1+ views</option>
               <option value="5+" <%= filters.viewsFilter === '5+' ? 'selected' : '' %>>5+ views</option>
               <option value="10+" <%= filters.viewsFilter === '10+' ? 'selected' : '' %>>10+ views</option>
+              <option value="most" <%= filters.viewsFilter === 'most' ? 'selected' : '' %>>Most views first</option>
+              <option value="least" <%= filters.viewsFilter === 'least' ? 'selected' : '' %>>Least views first</option>
             </select>
           </div>
 

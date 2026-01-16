@@ -67,6 +67,7 @@ router.get('/', async (req, res) => {
     }
 
     // Views filter
+    let viewsSortOverride = null;
     if (viewsFilter) {
       switch(viewsFilter) {
         case '0':
@@ -80,6 +81,12 @@ router.get('/', async (req, res) => {
           break;
         case '10+':
           whereClauses.push('view_count >= 10');
+          break;
+        case 'most':
+          viewsSortOverride = { column: 'view_count', order: 'DESC' };
+          break;
+        case 'least':
+          viewsSortOverride = { column: 'view_count', order: 'ASC' };
           break;
       }
     }
@@ -106,8 +113,14 @@ router.get('/', async (req, res) => {
 
     // Validate sortBy to prevent SQL injection
     const validSortColumns = ['company_name', 'created_at', 'view_count', 'city', 'state', 'industry'];
-    const safeSortBy = validSortColumns.includes(sortBy) ? sortBy : 'created_at';
-    const safeSortOrder = sortOrder.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+    let safeSortBy = validSortColumns.includes(sortBy) ? sortBy : 'created_at';
+    let safeSortOrder = sortOrder.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
+    // Apply views sort override if set
+    if (viewsSortOverride) {
+      safeSortBy = viewsSortOverride.column;
+      safeSortOrder = viewsSortOverride.order;
+    }
 
     // Get filtered businesses (conditionally include batch_name)
     const selectColumns = hasBatchColumn
@@ -193,13 +206,23 @@ router.get('/', async (req, res) => {
 // GET /export - Download CSV for Instantly.ai
 router.get('/export', async (req, res) => {
   try {
-    const result = await db.query(
-      `SELECT id, company_name, city, state, industry, region_label,
+    const { batch } = req.query;
+
+    let query = `SELECT id, company_name, city, state, industry, region_label,
               valuation_url_slug, url_slug, first_name, last_name, email, apollo_contact_id,
               linkedin_url, company_website, custom_revenue
-       FROM businesses
-       ORDER BY created_at DESC`
-    );
+       FROM businesses`;
+    const queryParams = [];
+
+    // Filter by batch if specified
+    if (batch) {
+      query += ' WHERE batch_name = $1';
+      queryParams.push(batch);
+    }
+
+    query += ' ORDER BY created_at DESC';
+
+    const result = await db.query(query, queryParams);
 
     const businesses = result.rows;
 
@@ -253,9 +276,16 @@ router.get('/export', async (req, res) => {
       }
     }
 
-    // Generate filename with current date
+    // Generate filename with current date and optional batch name
     const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-    const filename = `businesses-export-${date}.csv`;
+    let filename;
+    if (batch) {
+      // Sanitize batch name for filename (lowercase, replace spaces with hyphens, remove special chars)
+      const safeBatchName = batch.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      filename = `businesses-export-${safeBatchName}-${date}.csv`;
+    } else {
+      filename = `businesses-export-${date}.csv`;
+    }
 
     // Set headers for CSV download
     res.setHeader('Content-Type', 'text/csv');
