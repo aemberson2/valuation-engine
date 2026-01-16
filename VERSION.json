@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "buildId": "BUILD-2026-01-16-1400",
+  "gitCommit": "WILL_BE_SET_AT_DEPLOY",
+  "timestamp": "2026-01-16T14:00:00Z",
+  "features": [
+    "views-sorting-both-directions",
+    "export-by-batch",
+    "company-name-standardization"
+  ]
+}

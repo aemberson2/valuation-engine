@@ -221,6 +221,24 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Version endpoint - USE THIS TO VERIFY DEPLOYED CODE
+app.get('/version', (req, res) => {
+  const versionInfo = {
+    buildId: 'BUILD-2026-01-16-1400',
+    deployTimestamp: '2026-01-16T14:00:00Z',
+    features: [
+      'views-sorting-both-directions',
+      'export-by-batch',
+      'company-name-standardization',
+      'debug-logging'
+    ],
+    expectedGitCommit: 'ab4d459',
+    message: 'If you see this, Railway deployed the correct code!',
+    serverTime: new Date().toISOString()
+  };
+  res.status(200).json(versionInfo);
+});
+
 // Home page
 app.get('/', async (req, res) => {
   try {
