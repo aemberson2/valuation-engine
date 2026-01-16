@@ -1,6 +1,6 @@
 -- Seed valuation assumptions
 INSERT INTO valuation_assumptions (industry, estimated_revenue, sde_margin_pct, multiple_low, multiple_base, multiple_high) VALUES
-('generic', 750000, 0.20, 2.0, 2.5, 3.0),
+('generic', 900000, 0.20, 2.0, 2.5, 3.0),
 ('restaurant', 850000, 0.18, 1.8, 2.2, 2.8),
 ('dental_practice', 1200000, 0.30, 3.5, 4.0, 4.5),
 ('retail', 900000, 0.15, 2.0, 2.5, 3.0),

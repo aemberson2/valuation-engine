@@ -122,6 +122,7 @@ async function transformApolloCSV(filePath) {
       const apolloContactId = getField('Apollo Contact Id', 'Apollo Contact ID', 'apollo_contact_id', 'Person ID', 'Contact ID', 'Apollo ID');
       const linkedinUrl = getField('Person Linkedin Url', 'LinkedIn URL', 'LinkedIn', 'Linkedin Url', 'Person LinkedIn URL');
       const companyWebsite = getField('Website', 'Company Website', 'website', 'Website URL', 'Company URL');
+      const annualRevenueRaw = getField('Annual Revenue', 'annual_revenue', 'Revenue', 'Company Revenue');
 
       // DEBUG: Log contact fields for first few records
       if (index < 3) {
@@ -136,9 +137,9 @@ async function transformApolloCSV(filePath) {
         });
       }
 
-      // Use Company City/State if available, fallback to contact City/State
-      const city = getField('Company City', 'City', 'company_city', 'Location City');
-      const state = getField('Company State', 'State', 'company_state', 'Location State');
+      // Use ONLY Company City/State (not contact location)
+      const city = getField('Company City', 'company_city');
+      const state = getField('Company State', 'company_state');
       const country = getField('Company Country', 'Country', 'company_country', 'Location Country');
       const industry = getField('Industry', 'industry', 'Company Industry');
 
@@ -178,6 +179,18 @@ async function transformApolloCSV(filePath) {
       // Normalize industry
       const normalizedIndustry = normalizeIndustry(industry);
 
+      // Parse Annual Revenue: if available, reduce by 20% (multiply by 0.8)
+      let customRevenue = null;
+      if (annualRevenueRaw) {
+        // Remove currency symbols, commas, and whitespace, then parse as number
+        const cleanedRevenue = annualRevenueRaw.replace(/[$,\s]/g, '');
+        const parsedRevenue = parseFloat(cleanedRevenue);
+        if (!isNaN(parsedRevenue) && parsedRevenue > 0) {
+          // Reduce by 20% since Apollo revenue tends to be overstated
+          customRevenue = Math.round(parsedRevenue * 0.8);
+        }
+      }
+
       // Create transformed business object with contact fields
       const transformedBusiness = {
         company_name: companyName.trim(),
@@ -189,7 +202,8 @@ async function transformApolloCSV(filePath) {
         email: email ? email.trim() : null,
         apollo_contact_id: apolloContactId ? apolloContactId.trim() : null,
         linkedin_url: linkedinUrl ? linkedinUrl.trim() : null,
-        company_website: companyWebsite ? companyWebsite.trim() : null
+        company_website: companyWebsite ? companyWebsite.trim() : null,
+        custom_revenue: customRevenue
       };
 
       // DEBUG: Log what we're adding to the array
