@@ -392,34 +392,24 @@
       <div class="breakdown-table">
         <div class="breakdown-row">
           <span class="label"><%= valuation.calculations.uses_custom_revenue ? 'Annual Revenue' : 'Estimated Annual Revenue' %></span>
+          <span class="value"><%= valuation.formatted.base_revenue %></span>
+        </div>
+
+        <div class="breakdown-row">
+          <span class="label">Estimated Owner's Cash Flow</span>
           <span class="value">
-            <%= valuation.formatted.base_revenue %>
-            <% if (!valuation.calculations.uses_custom_revenue) { %>
-              <span class="note">(industry average)</span>
-            <% } %>
+            <%= valuation.formatted.base_sde %>
+            <span class="note">(Net profit + owner's salary)</span>
           </span>
         </div>
 
         <div class="breakdown-row">
-          <span class="label">Estimated SDE Margin</span>
-          <span class="value">
-            <%= valuation.formatted.sde_margin_pct %>
-            <span class="note">(conservative estimate)</span>
-          </span>
-        </div>
-
-        <div class="breakdown-row">
-          <span class="label">Estimated SDE (Seller's Discretionary Earnings)</span>
-          <span class="value"><%= valuation.formatted.base_sde %></span>
-        </div>
-
-        <div class="breakdown-row">
-          <span class="label">Valuation Multiple Range</span>
+          <span class="label">Valuation Multiple</span>
           <span class="value"><%= valuation.formatted.multiple_range %></span>
         </div>
 
         <div class="breakdown-row">
-          <span class="label">Estimated Value Range</span>
+          <span class="label">Estimated Business Value</span>
           <span class="value">
             <%= valuation.formatted.valuation_low %> – <%= valuation.formatted.valuation_high %>
           </span>
