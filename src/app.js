@@ -232,7 +232,7 @@ app.get('/version', (req, res) => {
       'company-name-standardization',
       'debug-logging'
     ],
-    expectedGitCommit: '233919e',
+    expectedGitCommit: '3eb8241',
     message: 'If you see this, Railway deployed the correct code!',
     serverTime: new Date().toISOString()
   };
