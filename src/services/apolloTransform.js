@@ -187,7 +187,35 @@ async function transformApolloCSV(filePath) {
       const apolloContactId = getField('Apollo Contact Id', 'Apollo Contact ID', 'apollo_contact_id', 'Person ID', 'Contact ID', 'Apollo ID');
       const linkedinUrl = getField('Person Linkedin Url', 'LinkedIn URL', 'LinkedIn', 'Linkedin Url', 'Person LinkedIn URL');
       const companyWebsite = getField('Website', 'Company Website', 'website', 'Website URL', 'Company URL');
-      const annualRevenueRaw = getField('Annual Revenue', 'annual_revenue', 'Revenue', 'Company Revenue');
+
+      // Annual Revenue - try many possible Apollo column names
+      const annualRevenueRaw = getField(
+        'Annual Revenue',
+        '# Employees',  // Sometimes Apollo puts revenue here incorrectly
+        'Company Annual Revenue',
+        'Estimated Annual Revenue',
+        'Company Revenue',
+        'Revenue',
+        'annual_revenue',
+        'Annual Rev',
+        'Est. Annual Revenue'
+      );
+
+      // DEBUG: Log revenue extraction for first few records
+      if (index < 5) {
+        // Find which column has revenue-like data
+        const revenueColumns = Object.keys(record).filter(k =>
+          k.toLowerCase().includes('revenue') ||
+          k.toLowerCase().includes('annual')
+        );
+        console.log(`[REVENUE DEBUG] Record ${index + 1}:`);
+        console.log(`  Company: ${companyName}`);
+        console.log(`  Revenue columns found: ${JSON.stringify(revenueColumns)}`);
+        revenueColumns.forEach(col => {
+          console.log(`    "${col}" = "${record[col]}"`);
+        });
+        console.log(`  annualRevenueRaw extracted: "${annualRevenueRaw}"`);
+      }
 
       // DEBUG: Log contact fields for first few records
       if (index < 3) {
@@ -253,6 +281,11 @@ async function transformApolloCSV(filePath) {
         if (!isNaN(parsedRevenue) && parsedRevenue > 0) {
           // Reduce by 20% since Apollo revenue tends to be overstated
           customRevenue = Math.round(parsedRevenue * 0.8);
+        }
+        // DEBUG: Log revenue parsing for first few records
+        if (index < 5) {
+          console.log(`[REVENUE PARSE] Record ${index + 1}:`);
+          console.log(`  Raw: "${annualRevenueRaw}" → Cleaned: "${cleanedRevenue}" → Parsed: ${parsedRevenue} → Final (80%): ${customRevenue}`);
         }
       }
 
