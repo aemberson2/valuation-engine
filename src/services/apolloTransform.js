@@ -275,9 +275,23 @@ async function transformApolloCSV(filePath) {
       // Parse Annual Revenue: if available, reduce by 20% (multiply by 0.8)
       let customRevenue = null;
       if (annualRevenueRaw) {
-        // Remove currency symbols, commas, and whitespace, then parse as number
-        const cleanedRevenue = annualRevenueRaw.replace(/[$,\s]/g, '');
-        const parsedRevenue = parseFloat(cleanedRevenue);
+        // Remove currency symbols, commas, and whitespace
+        let cleanedRevenue = annualRevenueRaw.replace(/[$,\s]/g, '');
+
+        // Handle M/K/B suffixes (e.g., "$4M" = 4 million, "$500K" = 500 thousand)
+        let multiplier = 1;
+        if (/[Mm]$/.test(cleanedRevenue)) {
+          multiplier = 1000000;
+          cleanedRevenue = cleanedRevenue.replace(/[Mm]$/, '');
+        } else if (/[Kk]$/.test(cleanedRevenue)) {
+          multiplier = 1000;
+          cleanedRevenue = cleanedRevenue.replace(/[Kk]$/, '');
+        } else if (/[Bb]$/.test(cleanedRevenue)) {
+          multiplier = 1000000000;
+          cleanedRevenue = cleanedRevenue.replace(/[Bb]$/, '');
+        }
+
+        const parsedRevenue = parseFloat(cleanedRevenue) * multiplier;
         if (!isNaN(parsedRevenue) && parsedRevenue > 0) {
           // Reduce by 20% since Apollo revenue tends to be overstated
           customRevenue = Math.round(parsedRevenue * 0.8);
@@ -285,7 +299,7 @@ async function transformApolloCSV(filePath) {
         // DEBUG: Log revenue parsing for first few records
         if (index < 5) {
           console.log(`[REVENUE PARSE] Record ${index + 1}:`);
-          console.log(`  Raw: "${annualRevenueRaw}" → Cleaned: "${cleanedRevenue}" → Parsed: ${parsedRevenue} → Final (80%): ${customRevenue}`);
+          console.log(`  Raw: "${annualRevenueRaw}" → Cleaned: "${cleanedRevenue}" → Multiplier: ${multiplier} → Parsed: ${parsedRevenue} → Final (80%): ${customRevenue}`);
         }
       }
 
