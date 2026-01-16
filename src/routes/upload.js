@@ -252,9 +252,10 @@ async function processBusinesses(businesses, batchName = null) {
           apollo_contact_id,
           linkedin_url,
           company_website,
-          batch_name
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
-        RETURNING id, url_slug, first_name, last_name, email, apollo_contact_id, linkedin_url, company_website`,
+          batch_name,
+          custom_revenue
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+        RETURNING id, url_slug, first_name, last_name, email, apollo_contact_id, linkedin_url, company_website, custom_revenue`,
         [
           business.company_name,
           business.city,
@@ -269,7 +270,8 @@ async function processBusinesses(businesses, batchName = null) {
           business.apollo_contact_id || null,
           business.linkedin_url || null,
           business.company_website || null,
-          batchName
+          batchName,
+          business.custom_revenue || null
         ]
       );
 
@@ -277,6 +279,7 @@ async function processBusinesses(businesses, batchName = null) {
       if (inserted < 3 && insertResult.rows.length > 0) {
         console.log('=== VERIFY INSERT ===');
         console.log('Row returned from DB:', insertResult.rows[0]);
+        console.log('[CUSTOM REVENUE] Saved:', business.custom_revenue, '→ DB returned:', insertResult.rows[0].custom_revenue);
       }
 
       inserted++;
