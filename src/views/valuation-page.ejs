@@ -204,6 +204,45 @@
       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
     }
 
+    /* Assumptions Hint - Subtle above-fold CTA */
+    .assumptions-hint {
+      text-align: center;
+      color: #6c757d;
+      font-size: 14px;
+      margin-bottom: 30px;
+      font-style: italic;
+    }
+
+    /* Value Drivers List */
+    .value-drivers {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 25px 0;
+      text-align: center;
+    }
+
+    .value-drivers li {
+      display: inline-block;
+      margin: 0 15px 10px 15px;
+      font-size: 15px;
+      opacity: 0.95;
+    }
+
+    .value-drivers li::before {
+      content: "•";
+      margin-right: 8px;
+      opacity: 0.7;
+    }
+
+    /* CTA Microcopy */
+    .cta-microcopy {
+      margin-top: 15px;
+      margin-bottom: 0;
+      font-size: 14px;
+      opacity: 0.8;
+      font-style: italic;
+    }
+
     /* Broker Info Section */
     .broker-info {
       background-color: #f8f9fa;
@@ -363,6 +402,9 @@
       </div>
     </div>
 
+    <!-- Passive CTA - Above the fold -->
+    <p class="assumptions-hint">If you want, reply "assumptions" and I'll send what I used.</p>
+
     <!-- Show-the-Math Breakdown -->
     <div class="breakdown">
       <h3>How We Calculated This:</h3>
@@ -404,21 +446,19 @@
       </p>
     </div>
 
-    <!-- Correction Invitation CTA -->
+    <!-- Value Drivers CTA -->
     <div class="cta-box">
-      <h3>Something Off?</h3>
-      <p>
-        <% if (valuation.calculations.uses_custom_revenue) { %>
-          If your revenue, margins, or industry classification don't match, reply and we'll revise.
-        <% } else { %>
-          We've estimated conservatively since we don't have your numbers.
-          If your revenue, margins, or industry classification don't match, reply and we'll revise.
-        <% } %>
-      </p>
-      <a href="mailto:aemberson@tworld.com?subject=Valuation%20Correction%20for%20<%= encodeURIComponent(valuation.business.company_name) %>"
+      <h3>What Usually Moves This Number</h3>
+      <ul class="value-drivers">
+        <li>Owner involvement</li>
+        <li>Customer concentration</li>
+        <li>Cash flow trend</li>
+      </ul>
+      <a href="mailto:aemberson@tworld.com?subject=Valuation%20for%20<%= encodeURIComponent(valuation.business.company_name) %>"
          class="cta-button">
-        Reply to Correct This Estimate
+        Request a Tighter Range
       </a>
+      <p class="cta-microcopy">One-line reply is fine. No prep needed.</p>
     </div>
 
     <!-- Broker Info Section -->
