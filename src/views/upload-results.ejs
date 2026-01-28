@@ -259,37 +259,29 @@
 
     <% if (typeof apolloStats !== 'undefined') { %>
       <div class="success-box" style="background-color: #e7f3ff; border-color: #2196F3;">
-        <h2 style="color: #1976D2;">Apollo Transformation Details</h2>
+        <h2 style="color: #1976D2;">Apollo Upload Complete</h2>
 
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="label">US Businesses</div>
-            <div class="value"><%= apolloStats.transformed %></div>
-          </div>
-
-          <div class="stat-card">
-            <div class="label">Non-US Filtered</div>
-            <div class="value"><%= apolloStats.skippedNonUS %></div>
-          </div>
-
-          <% if (apolloStats.skippedMissingData > 0) { %>
-            <div class="stat-card">
-              <div class="label">Missing Data</div>
-              <div class="value"><%= apolloStats.skippedMissingData %></div>
-            </div>
-          <% } %>
-
-          <% if (apolloStats.skippedInvalidState > 0) { %>
-            <div class="stat-card">
-              <div class="label">Invalid States</div>
-              <div class="value"><%= apolloStats.skippedInvalidState %></div>
-            </div>
-          <% } %>
-        </div>
-
-        <p style="margin-top: 15px; color: #1976D2; font-size: 14px;">
-          ✓ Contact information (First Name, Last Name, Email) has been preserved for future export
+        <p style="font-size: 18px; margin-top: 10px; color: #1976D2;">
+          Successfully uploaded <strong><%= inserted %></strong> businesses
         </p>
+
+        <% if (apolloStats.skippedDueToMissingData > 0) { %>
+          <p style="font-size: 14px; margin-top: 8px; color: #666;">
+            Skipped <%= apolloStats.skippedDueToMissingData %> businesses due to missing data
+          </p>
+        <% } %>
+
+        <% if (apolloStats.skippedNonUS > 0) { %>
+          <p style="font-size: 14px; margin-top: 4px; color: #666;">
+            Filtered <%= apolloStats.skippedNonUS %> non-US businesses
+          </p>
+        <% } %>
+
+        <% if (skipped > 0) { %>
+          <p style="font-size: 14px; margin-top: 4px; color: #666;">
+            Skipped <%= skipped %> duplicate businesses
+          </p>
+        <% } %>
       </div>
     <% } %>
 

@@ -136,7 +136,9 @@ router.post('/apollo', upload.single('csvFile'), async (req, res) => {
       console.log('- first_name value:', transformResult.data[0].first_name);
     }
 
-    if (!transformResult.success || transformResult.data.length === 0) {
+    // Always proceed - we'll show results even if all rows were skipped
+    // Only fail if there was a parsing error (not just missing data)
+    if (!transformResult.success) {
       // Delete uploaded file
       fs.unlinkSync(filePath);
 

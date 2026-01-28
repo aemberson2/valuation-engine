@@ -152,7 +152,6 @@ async function transformApolloCSV(filePath) {
     });
 
     const transformedBusinesses = [];
-    const errors = [];
     const skipped = {
       nonUS: 0,
       missingData: 0,
@@ -242,21 +241,18 @@ async function transformApolloCSV(filePath) {
         return;
       }
 
-      // Validate required fields
+      // Validate required fields - skip rows with missing data silently
       if (!companyName || !companyName.trim()) {
-        errors.push(`Line ${lineNumber}: Missing Company Name`);
         skipped.missingData++;
         return;
       }
 
       if (!city || !city.trim()) {
-        errors.push(`Line ${lineNumber}: Missing city for ${companyName}`);
         skipped.missingData++;
         return;
       }
 
       if (!state || !state.trim()) {
-        errors.push(`Line ${lineNumber}: Missing state for ${companyName}`);
         skipped.missingData++;
         return;
       }
@@ -264,7 +260,6 @@ async function transformApolloCSV(filePath) {
       // Normalize state
       const normalizedState = normalizeState(state);
       if (!normalizedState || normalizedState.length !== 2) {
-        errors.push(`Line ${lineNumber}: Invalid state "${state}" for ${companyName}`);
         skipped.invalidState++;
         return;
       }
@@ -350,17 +345,21 @@ async function transformApolloCSV(filePath) {
       });
     }
 
+    // Calculate total skipped due to missing/invalid data (not counting non-US)
+    const skippedDueToMissingData = skipped.missingData + skipped.invalidState;
+
     return {
-      success: errors.length === 0,
+      success: true, // Always succeed with whatever valid data is available
       data: transformedBusinesses,
-      errors: errors,
+      errors: [], // Don't surface detailed errors - just skip bad rows silently
       stats: {
         totalRecords: records.length,
         transformed: transformedBusinesses.length,
         skippedNonUS: skipped.nonUS,
         skippedMissingData: skipped.missingData,
         skippedInvalidState: skipped.invalidState,
-        totalSkipped: skipped.nonUS + skipped.missingData + skipped.invalidState
+        totalSkipped: skipped.nonUS + skipped.missingData + skipped.invalidState,
+        skippedDueToMissingData: skippedDueToMissingData
       }
     };
 
@@ -375,7 +374,8 @@ async function transformApolloCSV(filePath) {
         skippedNonUS: 0,
         skippedMissingData: 0,
         skippedInvalidState: 0,
-        totalSkipped: 0
+        totalSkipped: 0,
+        skippedDueToMissingData: 0
       }
     };
   }
