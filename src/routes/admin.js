@@ -313,13 +313,17 @@ router.get('/export', async (req, res) => {
 
 // DELETE /admin/business/:id - Delete single business
 router.delete('/business/:id', async (req, res) => {
+  console.log('[DELETE] Single business delete request received');
+  console.log('[DELETE] Params:', req.params);
   try {
     const { id } = req.params;
+    console.log('[DELETE] Deleting business with id:', id);
 
     const result = await db.query(
       'DELETE FROM businesses WHERE id = $1 RETURNING company_name',
       [id]
     );
+    console.log('[DELETE] Query result:', result.rows);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ success: false, error: 'Business not found' });
@@ -338,20 +342,26 @@ router.delete('/business/:id', async (req, res) => {
 
 // POST /admin/businesses/delete-bulk - Delete multiple businesses
 router.post('/businesses/delete-bulk', express.json(), async (req, res) => {
+  console.log('[BULK DELETE] Bulk delete request received');
+  console.log('[BULK DELETE] Request body:', req.body);
   try {
     const { ids } = req.body;
+    console.log('[BULK DELETE] IDs to delete:', ids);
 
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      console.log('[BULK DELETE] No valid IDs provided');
       return res.status(400).json({ success: false, error: 'No business IDs provided' });
     }
 
     // Create placeholders for parameterized query
     const placeholders = ids.map((_, i) => `$${i + 1}`).join(',');
+    console.log('[BULK DELETE] Query placeholders:', placeholders);
 
     const result = await db.query(
       `DELETE FROM businesses WHERE id IN (${placeholders}) RETURNING company_name`,
       ids
     );
+    console.log('[BULK DELETE] Deleted count:', result.rows.length);
 
     res.json({
       success: true,

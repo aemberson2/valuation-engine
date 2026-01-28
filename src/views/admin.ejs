@@ -790,16 +790,22 @@
 
     // Delete single business
     async function deleteOne(id, name) {
+      console.log('[DELETE] deleteOne called with id:', id, 'name:', name);
+
       if (!confirm(`Are you sure you want to delete "${name}"?`)) {
+        console.log('[DELETE] User cancelled');
         return;
       }
 
       try {
+        console.log('[DELETE] Sending DELETE request to /admin/business/' + id);
         const response = await fetch(`/admin/business/${id}`, {
           method: 'DELETE'
         });
 
+        console.log('[DELETE] Response status:', response.status);
         const data = await response.json();
+        console.log('[DELETE] Response data:', data);
 
         if (data.success) {
           alert(data.message);
@@ -808,6 +814,7 @@
           alert('Error: ' + data.error);
         }
       } catch (error) {
+        console.error('[DELETE] Error:', error);
         alert('Error deleting business: ' + error.message);
       }
     }
@@ -816,16 +823,20 @@
     async function deleteSelected() {
       const checkboxes = document.querySelectorAll('.business-checkbox:checked');
       const ids = Array.from(checkboxes).map(cb => cb.value);
+      console.log('[BULK DELETE] deleteSelected called with ids:', ids);
 
       if (ids.length === 0) {
+        console.log('[BULK DELETE] No ids selected');
         return;
       }
 
       if (!confirm(`Are you sure you want to delete ${ids.length} business${ids.length !== 1 ? 'es' : ''}?`)) {
+        console.log('[BULK DELETE] User cancelled');
         return;
       }
 
       try {
+        console.log('[BULK DELETE] Sending POST request to /admin/businesses/delete-bulk');
         const response = await fetch('/admin/businesses/delete-bulk', {
           method: 'POST',
           headers: {
@@ -834,7 +845,9 @@
           body: JSON.stringify({ ids })
         });
 
+        console.log('[BULK DELETE] Response status:', response.status);
         const data = await response.json();
+        console.log('[BULK DELETE] Response data:', data);
 
         if (data.success) {
           alert(data.message);
@@ -843,6 +856,7 @@
           alert('Error: ' + data.error);
         }
       } catch (error) {
+        console.error('[BULK DELETE] Error:', error);
         alert('Error deleting businesses: ' + error.message);
       }
     }
