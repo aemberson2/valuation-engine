@@ -267,7 +267,9 @@ async function transformApolloCSV(filePath) {
       // Normalize industry
       const normalizedIndustry = normalizeIndustry(industry);
 
-      // Parse Annual Revenue: if available, reduce by 20% (multiply by 0.8)
+      // Parse Annual Revenue: only use if >= $100K (ignore garbage data like $5, $4, etc.)
+      // If valid, reduce by 20% since Apollo revenue tends to be overstated
+      const MIN_VALID_REVENUE = 100000; // $100K minimum threshold
       let customRevenue = null;
       if (annualRevenueRaw) {
         // Remove currency symbols, commas, and whitespace
@@ -287,14 +289,15 @@ async function transformApolloCSV(filePath) {
         }
 
         const parsedRevenue = parseFloat(cleanedRevenue) * multiplier;
-        if (!isNaN(parsedRevenue) && parsedRevenue > 0) {
+        // Only use revenue if it's valid AND >= $100K (ignore garbage data)
+        if (!isNaN(parsedRevenue) && parsedRevenue >= MIN_VALID_REVENUE) {
           // Reduce by 20% since Apollo revenue tends to be overstated
           customRevenue = Math.round(parsedRevenue * 0.8);
         }
         // DEBUG: Log revenue parsing for first few records
         if (index < 5) {
           console.log(`[REVENUE PARSE] Record ${index + 1}:`);
-          console.log(`  Raw: "${annualRevenueRaw}" → Cleaned: "${cleanedRevenue}" → Multiplier: ${multiplier} → Parsed: ${parsedRevenue} → Final (80%): ${customRevenue}`);
+          console.log(`  Raw: "${annualRevenueRaw}" → Cleaned: "${cleanedRevenue}" → Multiplier: ${multiplier} → Parsed: ${parsedRevenue} → Valid (>=$${MIN_VALID_REVENUE}): ${parsedRevenue >= MIN_VALID_REVENUE} → Final (80%): ${customRevenue}`);
         }
       }
 
