@@ -62,7 +62,8 @@ async function runMigrations() {
       { file: '007_add_url_slug.sql', name: 'Add URL slug' },
       { file: '008_add_custom_revenue.sql', name: 'Add custom revenue' },
       { file: '009_update_default_revenue.sql', name: 'Update default revenue to $900k' },
-      { file: '010_add_custom_sde.sql', name: 'Add custom SDE field' }
+      { file: '010_add_custom_sde.sql', name: 'Add custom SDE field' },
+      { file: '011_add_actual_revenue_cashflow.sql', name: 'Add actual revenue and cash flow fields' }
     ];
 
     let migrationsToRun = [];

@@ -21,14 +21,15 @@ async function renderValuationPage(req, res, business) {
     // Calculate valuation
     const valuation = await calculateValuation(business);
 
-    // Build the URL to POST updated numbers to
     const slug = req.params.slug;
     const updateUrl = `${req.baseUrl}/${slug}/update`;
+    const trackUrl  = `${req.baseUrl}/${slug}/track`;
 
     // Render valuation page
     res.render('valuation-page', {
       valuation,
       updateUrl,
+      trackUrl,
       updated: req.query.updated === '1',
       formError: req.query.error || null
     });
@@ -141,6 +142,44 @@ router.post('/:slug/update', async (req, res) => {
   } catch (error) {
     console.error('Error updating valuation:', error);
     return res.redirect(`${baseUrl}/${slug}?error=${encodeURIComponent('Something went wrong. Please try again.')}`);
+  }
+});
+
+// POST /:slug/track - Save owner-submitted numbers for dashboard tracking (JSON)
+router.post('/:slug/track', async (req, res) => {
+  const { slug } = req.params;
+
+  try {
+    const result = await db.query(
+      `SELECT id FROM businesses
+       WHERE url_slug = $1 OR valuation_url_slug = $1
+       LIMIT 1`,
+      [slug]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Business not found' });
+    }
+
+    const businessId = result.rows[0].id;
+
+    const revenue   = parseFloat(String(req.body.revenue   || '').replace(/[$,\s]/g, '')) || null;
+    const cashFlow  = parseFloat(String(req.body.cash_flow || '').replace(/[$,\s]/g, '')) || null;
+
+    if (!revenue || !cashFlow) {
+      return res.status(400).json({ success: false, error: 'Invalid values' });
+    }
+
+    await db.query(
+      `UPDATE businesses SET actual_revenue = $1, actual_cash_flow = $2 WHERE id = $3`,
+      [revenue, cashFlow, businessId]
+    );
+
+    return res.json({ success: true });
+
+  } catch (error) {
+    console.error('Error tracking valuation submission:', error);
+    return res.status(500).json({ success: false, error: 'Server error' });
   }
 });
 

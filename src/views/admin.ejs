@@ -278,6 +278,15 @@
       color: #0056b3;
     }
 
+    .badge-completed {
+      background-color: #d4edda;
+      color: #155724;
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
     .badge-secondary {
       background-color: #e9ecef;
       color: #495057;
@@ -591,10 +600,12 @@
                 Industry
               </th>
               <th>Revenue</th>
+              <th>Cash Flow</th>
               <th>Batch</th>
               <th class="sortable" onclick="sortBy('view_count')">
                 Views
               </th>
+              <th>Completed</th>
               <th class="sortable" onclick="sortBy('created_at')">
                 Created
               </th>
@@ -624,10 +635,19 @@
                   <% } %>
                 </td>
                 <td>
-                  <% if (business.custom_revenue) { %>
-                    <span title="Custom revenue">$<%= business.custom_revenue.toLocaleString() %></span>
+                  <% if (business.actual_revenue) { %>
+                    $<%= Number(business.actual_revenue).toLocaleString() %>
+                  <% } else if (business.custom_revenue) { %>
+                    <span style="color: #adb5bd;" title="Using Apollo/custom revenue">Est.</span>
                   <% } else { %>
                     <span style="color: #adb5bd;" title="Using industry average">Est.</span>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (business.actual_cash_flow) { %>
+                    $<%= Number(business.actual_cash_flow).toLocaleString() %>
+                  <% } else { %>
+                    <span style="color: #adb5bd;">—</span>
                   <% } %>
                 </td>
                 <td>
@@ -650,6 +670,13 @@
                     </a>
                   <% } else { %>
                     <span style="color: #adb5bd;">0</span>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (business.actual_revenue && business.actual_cash_flow) { %>
+                    <span class="badge badge-completed">✓ Yes</span>
+                  <% } else { %>
+                    <span style="color: #dee2e6; font-size: 18px;" title="Not completed">●</span>
                   <% } %>
                 </td>
                 <td>

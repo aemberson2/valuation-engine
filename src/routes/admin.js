@@ -131,9 +131,11 @@ router.get('/', async (req, res) => {
     // Get filtered businesses (conditionally include batch_name)
     const selectColumns = hasBatchColumn
       ? `id, company_name, city, state, industry, region_label, batch_name,
-         valuation_url_slug, url_slug, view_count, created_at, custom_revenue`
+         valuation_url_slug, url_slug, view_count, created_at, custom_revenue,
+         actual_revenue, actual_cash_flow`
       : `id, company_name, city, state, industry, region_label,
-         valuation_url_slug, url_slug, view_count, created_at, custom_revenue`;
+         valuation_url_slug, url_slug, view_count, created_at, custom_revenue,
+         actual_revenue, actual_cash_flow`;
 
     const result = await db.query(
       `SELECT ${selectColumns}
