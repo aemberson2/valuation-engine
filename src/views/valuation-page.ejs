@@ -179,40 +179,6 @@
       margin-bottom: 15px;
     }
 
-    .cta-box p {
-      font-size: 16px;
-      margin-bottom: 20px;
-      opacity: 0.95;
-      line-height: 1.6;
-    }
-
-    .cta-button {
-      display: inline-block;
-      background-color: white;
-      color: #2D5A3D;
-      padding: 15px 35px;
-      border-radius: 50px;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 16px;
-      transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    }
-
-    .cta-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-    }
-
-    /* Assumptions Hint - Subtle above-fold CTA */
-    .assumptions-hint {
-      text-align: center;
-      color: #6c757d;
-      font-size: 14px;
-      margin-bottom: 30px;
-      font-style: italic;
-    }
-
     /* Value Drivers List */
     .value-drivers {
       list-style: none;
@@ -234,6 +200,86 @@
       opacity: 0.7;
     }
 
+    /* Success message */
+    .success-message {
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    /* Error message */
+    .error-message {
+      background-color: rgba(220, 53, 69, 0.85);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 15px;
+      margin-bottom: 20px;
+    }
+
+    /* Inline update form */
+    .update-form {
+      text-align: left;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 6px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      color: #2c3e50;
+      background: white;
+      outline: none;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+
+    .form-group input:focus {
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4);
+    }
+
+    .form-group input::placeholder {
+      color: #adb5bd;
+    }
+
+    .submit-button {
+      display: block;
+      width: 100%;
+      background-color: white;
+      color: #2D5A3D;
+      padding: 15px 35px;
+      border: none;
+      border-radius: 50px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .submit-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    }
+
     /* CTA Microcopy */
     .cta-microcopy {
       margin-top: 15px;
@@ -241,6 +287,7 @@
       font-size: 14px;
       opacity: 0.8;
       font-style: italic;
+      text-align: center;
     }
 
     /* Broker Info Section */
@@ -402,16 +449,13 @@
       </div>
     </div>
 
-    <!-- Passive CTA - Above the fold -->
-    <p class="assumptions-hint">If you want, reply "assumptions" and I'll send what I used.</p>
-
     <!-- Show-the-Math Breakdown -->
     <div class="breakdown">
       <h3>How We Calculated This:</h3>
       <div class="breakdown-table">
         <div class="breakdown-row">
-          <span class="label"><%= valuation.calculations.uses_custom_revenue ? 'Annual Revenue' : 'Estimated Annual Revenue' %></span>
-          <span class="value"><%= valuation.formatted.base_revenue %></span>
+          <span class="label">Estimated Annual Revenue</span>
+          <span class="value">$900,000 <span class="note">(industry average)</span></span>
         </div>
 
         <div class="breakdown-row">
@@ -446,7 +490,7 @@
       </p>
     </div>
 
-    <!-- Value Drivers CTA -->
+    <!-- Value Drivers + Inline Form -->
     <div class="cta-box">
       <h3>What Usually Moves This Number</h3>
       <ul class="value-drivers">
@@ -454,11 +498,27 @@
         <li>Customer concentration</li>
         <li>Cash flow trend</li>
       </ul>
-      <a href="mailto:aemberson@tworld.com?subject=Valuation%20for%20<%= encodeURIComponent(valuation.business.company_name) %>"
-         class="cta-button">
-        Request a Tighter Range
-      </a>
-      <p class="cta-microcopy">One-line reply is fine. No prep needed.</p>
+
+      <% if (updated) { %>
+      <div class="success-message">Updated based on your numbers</div>
+      <% } %>
+
+      <% if (formError) { %>
+      <div class="error-message"><%= formError %></div>
+      <% } %>
+
+      <form class="update-form" action="<%= updateUrl %>" method="POST">
+        <div class="form-group">
+          <label for="revenue">What's your actual annual revenue?</label>
+          <input type="text" id="revenue" name="revenue" placeholder="e.g. $1,200,000">
+        </div>
+        <div class="form-group">
+          <label for="cash_flow">What's your approximate owner's salary + net profit combined?</label>
+          <input type="text" id="cash_flow" name="cash_flow" placeholder="e.g. $200,000">
+        </div>
+        <button type="submit" class="submit-button">Get Updated Valuation</button>
+      </form>
+      <p class="cta-microcopy">Takes 30 seconds. Results instant.</p>
     </div>
 
     <!-- Broker Info Section -->

@@ -21,10 +21,16 @@ async function renderValuationPage(req, res, business) {
     // Calculate valuation
     const valuation = await calculateValuation(business);
 
+    // Build the URL to POST updated numbers to
+    const slug = req.params.slug;
+    const updateUrl = `${req.baseUrl}/${slug}/update`;
+
     // Render valuation page
     res.render('valuation-page', {
       valuation,
-      contactEmail: 'valuations@yourbrokerage.com'
+      updateUrl,
+      updated: req.query.updated === '1',
+      formError: req.query.error || null
     });
   } catch (error) {
     console.error('Error rendering valuation page:', error);
@@ -40,7 +46,7 @@ router.get('/:slug', async (req, res) => {
     // First try to find by clean url_slug
     let result = await db.query(
       `SELECT id, company_name, city, state, industry, region_label,
-              valuation_url_slug, url_slug, view_count, custom_revenue
+              valuation_url_slug, url_slug, view_count, custom_revenue, custom_sde
        FROM businesses
        WHERE url_slug = $1
        LIMIT 1`,
@@ -51,7 +57,7 @@ router.get('/:slug', async (req, res) => {
     if (result.rows.length === 0) {
       result = await db.query(
         `SELECT id, company_name, city, state, industry, region_label,
-                valuation_url_slug, url_slug, view_count, custom_revenue
+                valuation_url_slug, url_slug, view_count, custom_revenue, custom_sde
          FROM businesses
          WHERE valuation_url_slug = $1
          LIMIT 1`,
@@ -73,6 +79,68 @@ router.get('/:slug', async (req, res) => {
   } catch (error) {
     console.error('Error loading valuation page:', error);
     res.status(500).send('An error occurred while loading this valuation.');
+  }
+});
+
+// POST /:slug/update - Save owner-submitted revenue and cash flow, recalculate
+router.post('/:slug/update', async (req, res) => {
+  const { slug } = req.params;
+  const baseUrl = req.baseUrl;
+
+  try {
+    // Find business
+    let result = await db.query(
+      `SELECT id FROM businesses
+       WHERE url_slug = $1 OR valuation_url_slug = $1
+       LIMIT 1`,
+      [slug]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).render('404', {
+        message: 'Valuation not found',
+        detail: 'This valuation link is invalid or has expired.'
+      });
+    }
+
+    const businessId = result.rows[0].id;
+
+    // Strip currency formatting and parse
+    const rawRevenue = String(req.body.revenue || '').replace(/[$,\s]/g, '');
+    const rawCashFlow = String(req.body.cash_flow || '').replace(/[$,\s]/g, '');
+
+    const revenue = parseInt(rawRevenue, 10);
+    const cashFlow = parseInt(rawCashFlow, 10);
+
+    // Validate
+    const errors = [];
+    if (!rawRevenue || isNaN(revenue)) {
+      errors.push('Please enter your annual revenue.');
+    } else if (revenue < 10000) {
+      errors.push('Revenue must be at least $10,000.');
+    }
+
+    if (!rawCashFlow || isNaN(cashFlow)) {
+      errors.push("Please enter your owner's cash flow.");
+    } else if (cashFlow < 1000) {
+      errors.push('Cash flow must be at least $1,000.');
+    }
+
+    if (errors.length > 0) {
+      return res.redirect(`${baseUrl}/${slug}?error=${encodeURIComponent(errors.join(' '))}`);
+    }
+
+    // Save to database
+    await db.query(
+      `UPDATE businesses SET custom_revenue = $1, custom_sde = $2 WHERE id = $3`,
+      [revenue, cashFlow, businessId]
+    );
+
+    return res.redirect(`${baseUrl}/${slug}?updated=1`);
+
+  } catch (error) {
+    console.error('Error updating valuation:', error);
+    return res.redirect(`${baseUrl}/${slug}?error=${encodeURIComponent('Something went wrong. Please try again.')}`);
   }
 });
 

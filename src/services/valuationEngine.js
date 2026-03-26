@@ -24,8 +24,9 @@ async function calculateValuation(business) {
     const hasCustomRevenue = business.custom_revenue !== null && business.custom_revenue !== undefined;
     const baseRevenue = hasCustomRevenue ? business.custom_revenue : assumptions.estimated_revenue;
 
-    // 4. Calculate valuation
-    const baseSDE = baseRevenue * assumptions.sde_margin_pct;
+    // 4. Calculate valuation — use custom_sde if owner submitted it, otherwise derive from revenue
+    const hasCustomSDE = business.custom_sde !== null && business.custom_sde !== undefined;
+    const baseSDE = hasCustomSDE ? business.custom_sde : baseRevenue * assumptions.sde_margin_pct;
     const adjustedSDE = baseSDE * regionalModifier;
     const valuationLow = adjustedSDE * assumptions.multiple_low;
     const valuationBase = adjustedSDE * assumptions.multiple_base;
@@ -51,6 +52,8 @@ async function calculateValuation(business) {
         base_revenue: baseRevenue,
         custom_revenue: hasCustomRevenue ? business.custom_revenue : null,
         uses_custom_revenue: hasCustomRevenue,
+        custom_sde: hasCustomSDE ? business.custom_sde : null,
+        uses_custom_sde: hasCustomSDE,
         base_sde: baseSDE,
         regional_modifier: regionalModifier,
         adjusted_sde: adjustedSDE,
