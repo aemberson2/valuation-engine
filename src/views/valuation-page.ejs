@@ -201,9 +201,28 @@
       font-size: 48px;
       font-weight: bold;
       text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      margin-bottom: 20px;
     }
 
-    /* Value Drivers (post-calculation) */
+    /* Edit numbers link */
+    .edit-numbers-link {
+      display: inline-block;
+      margin-top: 4px;
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 14px;
+      text-decoration: underline;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: inherit;
+    }
+
+    .edit-numbers-link:hover {
+      color: white;
+    }
+
+    /* Value Drivers Cards */
     .value-drivers-section {
       margin-bottom: 30px;
     }
@@ -211,72 +230,100 @@
     .value-drivers-heading {
       font-size: 20px;
       color: #2c3e50;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
+      font-weight: 600;
     }
 
-    .value-drivers-list {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 20px 0;
+    .value-driver-cards {
+      display: flex;
+      gap: 16px;
     }
 
-    .value-drivers-list li {
-      display: inline-block;
-      margin: 0 15px 10px 0;
-      font-size: 15px;
-      color: #495057;
+    .driver-card {
+      flex: 1;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 10px;
+      padding: 20px 16px;
+      text-align: center;
+      border-top: 3px solid #2D5A3D;
     }
 
-    .value-drivers-list li::before {
-      content: "•";
-      margin-right: 8px;
-      color: #2D5A3D;
+    .driver-card .driver-icon {
+      font-size: 28px;
+      margin-bottom: 10px;
+      line-height: 1;
     }
 
-    .deeper-cta {
-      font-size: 15px;
+    .driver-card .driver-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .deeper-cta a {
-      color: #2D5A3D;
-      text-decoration: underline;
+    .driver-card .driver-desc {
+      font-size: 13px;
+      color: #6c757d;
+      line-height: 1.5;
     }
 
-    .deeper-cta a:hover {
-      color: #1B4332;
-    }
-
-    /* Value Drivers List (legacy, keep for style consistency) */
-    .value-drivers {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 25px 0;
+    /* CTA button (post-results) */
+    .cta-button-section {
+      margin-bottom: 30px;
       text-align: center;
     }
 
-    .value-drivers li {
+    .cta-action-button {
       display: inline-block;
-      margin: 0 15px 10px 15px;
-      font-size: 15px;
-      opacity: 0.95;
+      background-color: white;
+      color: #2D5A3D;
+      border: 2px solid #2D5A3D;
+      padding: 15px 30px;
+      border-radius: 50px;
+      font-weight: bold;
+      font-size: 16px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+      box-shadow: 0 4px 10px rgba(45, 90, 61, 0.15);
     }
 
-    .value-drivers li::before {
-      content: "•";
-      margin-right: 8px;
-      opacity: 0.7;
+    .cta-action-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(45, 90, 61, 0.25);
+      background-color: #f0f7f2;
     }
 
-    /* Success message */
-    .success-message {
-      background-color: rgba(255, 255, 255, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      color: white;
-      padding: 12px 20px;
-      border-radius: 6px;
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 20px;
+    .cta-action-note {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #6c757d;
+      font-style: italic;
+    }
+
+    /* Edit numbers link (below results table) */
+    .edit-link-row {
+      text-align: center;
+      margin-top: 12px;
+      margin-bottom: 0;
+    }
+
+    .edit-link-row button {
+      background: none;
+      border: none;
+      color: #6c757d;
+      font-size: 14px;
+      text-decoration: underline;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 0;
+    }
+
+    .edit-link-row button:hover {
+      color: #2D5A3D;
     }
 
     /* Error message */
@@ -478,6 +525,10 @@
         text-align: left;
       }
 
+      .value-driver-cards {
+        flex-direction: column;
+      }
+
       .broker-info {
         flex-direction: column;
         text-align: center;
@@ -513,7 +564,7 @@
       <p class="region"><%= valuation.business.city %>, <%= valuation.business.state %></p>
     </div>
 
-    <!-- Main green card: form → switches to result on submit -->
+    <!-- Main green card: toggles between form and result -->
     <div id="main-card" class="cta-box">
 
       <!-- Form view (initial state) -->
@@ -541,6 +592,7 @@
       <div id="result-view" style="display:none">
         <p class="result-label">Estimated Business Value</p>
         <div class="result-value" id="result-range"></div>
+        <button class="edit-numbers-link" onclick="showForm()">Edit my numbers</button>
       </div>
 
     </div>
@@ -557,17 +609,20 @@
           </div>
           <div class="breakdown-row">
             <span class="label">Owner's Cash Flow</span>
-            <span class="value" id="breakdown-cashflow"><span class="note">(Net profit + owner's salary)</span></span>
+            <span class="value" id="breakdown-cashflow"></span>
           </div>
           <div class="breakdown-row">
             <span class="label">Valuation Multiple</span>
-            <span class="value">2.0x – 3.0x</span>
+            <span class="value">2.5x – 4.0x</span>
           </div>
           <div class="breakdown-row">
             <span class="label">Estimated Business Value</span>
             <span class="value" id="breakdown-result"></span>
           </div>
         </div>
+        <p class="edit-link-row">
+          <button onclick="showForm()">Edit my numbers</button>
+        </p>
       </div>
 
       <!-- Confidence box -->
@@ -576,17 +631,38 @@
         <p>Based on the numbers you provided. The actual value of your business depends on growth trends, customer concentration, owner involvement, and many other factors.</p>
       </div>
 
-      <!-- Value drivers + mailto link -->
+      <!-- Value driver cards -->
       <div class="value-drivers-section">
         <h3 class="value-drivers-heading">What Usually Moves This Number</h3>
-        <ul class="value-drivers-list">
-          <li>Owner involvement</li>
-          <li>Customer concentration</li>
-          <li>Cash flow trend</li>
-        </ul>
-        <p class="deeper-cta">
-          <a href="mailto:aemberson@tworld.com">Want a more precise valuation? Reply to my email and I'll dig deeper.</a>
-        </p>
+        <div class="value-driver-cards">
+
+          <div class="driver-card">
+            <div class="driver-icon">👤</div>
+            <div class="driver-name">Owner Involvement</div>
+            <div class="driver-desc">Buyers pay more for businesses that can run without you — high owner dependency lowers the multiple.</div>
+          </div>
+
+          <div class="driver-card">
+            <div class="driver-icon">🎯</div>
+            <div class="driver-name">Customer Concentration</div>
+            <div class="driver-desc">If one client is more than 20% of revenue, buyers see risk — diversified customer bases command higher valuations.</div>
+          </div>
+
+          <div class="driver-card">
+            <div class="driver-icon">📈</div>
+            <div class="driver-name">Cash Flow Trend</div>
+            <div class="driver-desc">Growing cash flow signals a healthy business — flat or declining trends push buyers toward the lower end of the range.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- CTA button -->
+      <div class="cta-button-section">
+        <a id="cta-mailto" href="#" class="cta-action-button">
+          Ready to know your real number — and how to grow it?
+        </a>
+        <p class="cta-action-note">I'll walk you through what moves your valuation and what to do next — no obligation.</p>
       </div>
 
     </div>
@@ -618,6 +694,8 @@
   </div>
 
   <script>
+    var businessName = '<%= valuation.business.company_name.replace(/'/g, "\\'") %>';
+
     function formatCurrency(amount) {
       return new Intl.NumberFormat('en-US', {
         style: 'currency',
@@ -655,8 +733,8 @@
       }
       errorEl.style.display = 'none';
 
-      var low  = cashFlow * 2.0;
-      var high = cashFlow * 3.0;
+      var low  = cashFlow * 2.5;
+      var high = cashFlow * 4.0;
       var rangeText = formatCurrency(low) + ' \u2013 ' + formatCurrency(high);
 
       // Populate result card
@@ -664,17 +742,32 @@
 
       // Populate breakdown table
       document.getElementById('breakdown-revenue').textContent = formatCurrency(revenue);
-      document.getElementById('breakdown-cashflow').innerHTML = formatCurrency(cashFlow) + ' <span class="note">(Net profit + owner\'s salary)</span>';
+      document.getElementById('breakdown-cashflow').innerHTML =
+        formatCurrency(cashFlow) + ' <span class="note">(Net profit + owner\'s salary)</span>';
       document.getElementById('breakdown-result').textContent = rangeText;
+
+      // Build mailto link with business name
+      var subject = encodeURIComponent('Responding to your valuation tool');
+      var body = encodeURIComponent(
+        'Hi Andrew,\n\nI\u2019d like to learn more about my business valuation and how to increase it. My business is ' +
+        businessName + '.'
+      );
+      document.getElementById('cta-mailto').href =
+        'mailto:aemberson@tworld.com?subject=' + subject + '&body=' + body;
 
       // Switch card to result view
       document.getElementById('form-view').style.display = 'none';
       document.getElementById('result-view').style.display = 'block';
-
-      // Show results section below card
       document.getElementById('results-section').style.display = 'block';
 
       // Scroll to top of card
+      document.getElementById('main-card').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function showForm() {
+      document.getElementById('result-view').style.display = 'none';
+      document.getElementById('results-section').style.display = 'none';
+      document.getElementById('form-view').style.display = 'block';
       document.getElementById('main-card').scrollIntoView({ behavior: 'smooth' });
     }
 
