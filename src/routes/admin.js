@@ -25,6 +25,7 @@ router.get('/', async (req, res) => {
       industry = '',
       state = '',
       search = '',
+      completed = '',
       sortBy = 'created_at',
       sortOrder = 'desc'
     } = req.query;
@@ -113,6 +114,13 @@ router.get('/', async (req, res) => {
       queryParams.push(`%${search.toLowerCase()}%`);
     }
 
+    // Completed filter
+    if (completed === 'yes') {
+      whereClauses.push('actual_revenue IS NOT NULL AND actual_cash_flow IS NOT NULL');
+    } else if (completed === 'no') {
+      whereClauses.push('(actual_revenue IS NULL OR actual_cash_flow IS NULL)');
+    }
+
     const whereClause = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
 
     // Validate sortBy to prevent SQL injection
@@ -196,6 +204,7 @@ router.get('/', async (req, res) => {
         industry: industry || '',
         state: state || '',
         search: search || '',
+        completed: completed || '',
         sortBy: safeSortBy,
         sortOrder: safeSortOrder
       },
