@@ -498,6 +498,42 @@
       letter-spacing: 0.5px;
     }
 
+    /* Blurred teaser card */
+    .teaser-card {
+      background: white;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 24px 30px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .teaser-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #6c757d;
+      margin-bottom: 10px;
+    }
+
+    .teaser-value {
+      font-size: 48px;
+      font-weight: bold;
+      color: #2c3e50;
+      filter: blur(8px);
+      user-select: none;
+      margin-bottom: 10px;
+      line-height: 1.1;
+    }
+
+    .teaser-hint {
+      font-size: 13px;
+      color: #6c757d;
+      font-style: italic;
+      margin: 0;
+    }
+
     /* Responsive */
     @media (max-width: 600px) {
       .container {
@@ -513,6 +549,10 @@
       }
 
       .result-value {
+        font-size: 36px;
+      }
+
+      .teaser-value {
         font-size: 36px;
       }
 
@@ -562,6 +602,13 @@
     <div class="header">
       <h1><%= valuation.business.company_name %></h1>
       <p class="region"><%= valuation.business.city %>, <%= valuation.business.state %></p>
+    </div>
+
+    <!-- Blurred teaser — hidden once results are shown -->
+    <div id="teaser" class="teaser-card">
+      <p class="teaser-label">Your Estimated Valuation Range</p>
+      <div class="teaser-value">$480,000 – $730,000</div>
+      <p class="teaser-hint">Enter your numbers below to see your actual range.</p>
     </div>
 
     <!-- Main green card: toggles between form and result -->
@@ -625,12 +672,6 @@
         </p>
       </div>
 
-      <!-- Confidence box -->
-      <div class="confidence">
-        <h4>Confidence Level: Medium</h4>
-        <p>Based on the numbers you provided. The actual value of your business depends on growth trends, customer concentration, owner involvement, and many other factors.</p>
-      </div>
-
       <!-- Value driver cards -->
       <div class="value-drivers-section">
         <h3 class="value-drivers-heading">What Usually Moves This Number</h3>
@@ -655,6 +696,12 @@
           </div>
 
         </div>
+      </div>
+
+      <!-- Confidence box -->
+      <div class="confidence">
+        <h4>Confidence Level: Medium</h4>
+        <p>Based on the numbers you provided. The actual value of your business depends on growth trends, customer concentration, owner involvement, and many other factors.</p>
       </div>
 
       <!-- CTA button -->
@@ -755,7 +802,8 @@
       document.getElementById('cta-mailto').href =
         'mailto:aemberson@tworld.com?subject=' + subject + '&body=' + body;
 
-      // Switch card to result view
+      // Switch card to result view, hide teaser
+      document.getElementById('teaser').style.display = 'none';
       document.getElementById('form-view').style.display = 'none';
       document.getElementById('result-view').style.display = 'block';
       document.getElementById('results-section').style.display = 'block';
@@ -767,6 +815,7 @@
     function showForm() {
       document.getElementById('result-view').style.display = 'none';
       document.getElementById('results-section').style.display = 'none';
+      document.getElementById('teaser').style.display = 'block';
       document.getElementById('form-view').style.display = 'block';
       document.getElementById('main-card').scrollIntoView({ behavior: 'smooth' });
     }
