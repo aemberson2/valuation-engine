@@ -179,7 +179,74 @@
       margin-bottom: 15px;
     }
 
-    /* Value Drivers List */
+    /* Card subtext */
+    .card-subtext {
+      font-size: 16px;
+      opacity: 0.9;
+      margin-bottom: 25px;
+      line-height: 1.6;
+    }
+
+    /* Result label + value inside green card */
+    .result-label {
+      font-size: 18px;
+      font-weight: 500;
+      opacity: 0.9;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .result-value {
+      font-size: 48px;
+      font-weight: bold;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    /* Value Drivers (post-calculation) */
+    .value-drivers-section {
+      margin-bottom: 30px;
+    }
+
+    .value-drivers-heading {
+      font-size: 20px;
+      color: #2c3e50;
+      margin-bottom: 12px;
+    }
+
+    .value-drivers-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 20px 0;
+    }
+
+    .value-drivers-list li {
+      display: inline-block;
+      margin: 0 15px 10px 0;
+      font-size: 15px;
+      color: #495057;
+    }
+
+    .value-drivers-list li::before {
+      content: "•";
+      margin-right: 8px;
+      color: #2D5A3D;
+    }
+
+    .deeper-cta {
+      font-size: 15px;
+    }
+
+    .deeper-cta a {
+      color: #2D5A3D;
+      text-decoration: underline;
+    }
+
+    .deeper-cta a:hover {
+      color: #1B4332;
+    }
+
+    /* Value Drivers List (legacy, keep for style consistency) */
     .value-drivers {
       list-style: none;
       padding: 0;
@@ -398,6 +465,10 @@
         font-size: 36px;
       }
 
+      .result-value {
+        font-size: 36px;
+      }
+
       .breakdown-row {
         flex-direction: column;
         gap: 5px;
@@ -435,93 +506,92 @@
 </head>
 <body>
   <div class="container">
+
     <!-- Header -->
     <div class="header">
       <h1><%= valuation.business.company_name %></h1>
       <p class="region"><%= valuation.business.city %>, <%= valuation.business.state %></p>
     </div>
 
-    <!-- Valuation Range -->
-    <div class="valuation-range">
-      <h2>Estimated Business Value</h2>
-      <div class="value">
-        <%= valuation.formatted.valuation_low %> – <%= valuation.formatted.valuation_high %>
+    <!-- Main green card: form → switches to result on submit -->
+    <div id="main-card" class="cta-box">
+
+      <!-- Form view (initial state) -->
+      <div id="form-view">
+        <h3>What's Your Business Worth?</h3>
+        <p class="card-subtext">Enter your numbers below to get your estimated valuation range instantly.</p>
+
+        <div id="form-error" class="error-message" style="display:none"></div>
+
+        <form class="update-form" id="valuation-form">
+          <div class="form-group">
+            <label for="revenue">What's your actual annual revenue?</label>
+            <input type="text" id="revenue" name="revenue" placeholder="$1,200,000">
+          </div>
+          <div class="form-group">
+            <label for="cash_flow">What's your approximate owner's salary + net profit combined?</label>
+            <input type="text" id="cash_flow" name="cash_flow" placeholder="$200,000">
+          </div>
+          <button type="button" class="submit-button" onclick="calculateValuation()">Get Valuation Range</button>
+        </form>
+        <p class="cta-microcopy">Takes 30 seconds. Results instant.</p>
       </div>
+
+      <!-- Result view (shown after calculation) -->
+      <div id="result-view" style="display:none">
+        <p class="result-label">Estimated Business Value</p>
+        <div class="result-value" id="result-range"></div>
+      </div>
+
     </div>
 
-    <!-- Show-the-Math Breakdown -->
-    <div class="breakdown">
-      <h3>How We Calculated This:</h3>
-      <div class="breakdown-table">
-        <div class="breakdown-row">
-          <span class="label">Estimated Annual Revenue</span>
-          <span class="value">$900,000 <span class="note">(industry average)</span></span>
-        </div>
+    <!-- Results section: shown after calculation -->
+    <div id="results-section" style="display:none">
 
-        <div class="breakdown-row">
-          <span class="label">Estimated Owner's Cash Flow</span>
-          <span class="value">
-            <%= valuation.formatted.base_sde %>
-            <span class="note">(Net profit + owner's salary)</span>
-          </span>
-        </div>
-
-        <div class="breakdown-row">
-          <span class="label">Valuation Multiple</span>
-          <span class="value"><%= valuation.formatted.multiple_range %></span>
-        </div>
-
-        <div class="breakdown-row">
-          <span class="label">Estimated Business Value</span>
-          <span class="value">
-            <%= valuation.formatted.valuation_low %> – <%= valuation.formatted.valuation_high %>
-          </span>
+      <!-- Breakdown table -->
+      <div class="breakdown">
+        <div class="breakdown-table">
+          <div class="breakdown-row">
+            <span class="label">Annual Revenue</span>
+            <span class="value" id="breakdown-revenue"></span>
+          </div>
+          <div class="breakdown-row">
+            <span class="label">Owner's Cash Flow</span>
+            <span class="value" id="breakdown-cashflow"><span class="note">(Net profit + owner's salary)</span></span>
+          </div>
+          <div class="breakdown-row">
+            <span class="label">Valuation Multiple</span>
+            <span class="value">2.0x – 3.0x</span>
+          </div>
+          <div class="breakdown-row">
+            <span class="label">Estimated Business Value</span>
+            <span class="value" id="breakdown-result"></span>
+          </div>
         </div>
       </div>
+
+      <!-- Confidence box -->
+      <div class="confidence">
+        <h4>Confidence Level: Medium</h4>
+        <p>Based on the numbers you provided. The actual value of your business depends on growth trends, customer concentration, owner involvement, and many other factors.</p>
+      </div>
+
+      <!-- Value drivers + mailto link -->
+      <div class="value-drivers-section">
+        <h3 class="value-drivers-heading">What Usually Moves This Number</h3>
+        <ul class="value-drivers-list">
+          <li>Owner involvement</li>
+          <li>Customer concentration</li>
+          <li>Cash flow trend</li>
+        </ul>
+        <p class="deeper-cta">
+          <a href="mailto:aemberson@tworld.com">Want a more precise valuation? Reply to my email and I'll dig deeper.</a>
+        </p>
+      </div>
+
     </div>
 
-    <!-- Confidence Statement -->
-    <div class="confidence">
-      <h4>Confidence Level: Low</h4>
-      <p>
-        We don't have your actual financial data, so this is a conservative starting point.
-        The actual value of your business depends on your real revenue, profitability, growth trends,
-        assets, customer concentration, and many other factors.
-      </p>
-    </div>
-
-    <!-- Value Drivers + Inline Form -->
-    <div class="cta-box">
-      <h3>What Usually Moves This Number</h3>
-      <ul class="value-drivers">
-        <li>Owner involvement</li>
-        <li>Customer concentration</li>
-        <li>Cash flow trend</li>
-      </ul>
-
-      <% if (updated) { %>
-      <div class="success-message">Updated based on your numbers</div>
-      <% } %>
-
-      <% if (formError) { %>
-      <div class="error-message"><%= formError %></div>
-      <% } %>
-
-      <form class="update-form" action="<%= updateUrl %>" method="POST">
-        <div class="form-group">
-          <label for="revenue">What's your actual annual revenue?</label>
-          <input type="text" id="revenue" name="revenue" placeholder="e.g. $1,200,000">
-        </div>
-        <div class="form-group">
-          <label for="cash_flow">What's your approximate owner's salary + net profit combined?</label>
-          <input type="text" id="cash_flow" name="cash_flow" placeholder="e.g. $200,000">
-        </div>
-        <button type="submit" class="submit-button">Get Updated Valuation</button>
-      </form>
-      <p class="cta-microcopy">Takes 30 seconds. Results instant.</p>
-    </div>
-
-    <!-- Broker Info Section -->
+    <!-- Broker Info Section — untouched -->
     <div class="broker-info">
       <div class="headshot">
         <img src="/images/andrew-headshot.webp" alt="Andrew Emberson">
@@ -544,6 +614,74 @@
     <div class="disclaimer">
       <p>This is a preliminary estimate based on industry averages, not a formal valuation or offer. Not financial or legal advice. Consult a qualified professional before making business decisions.</p>
     </div>
+
   </div>
+
+  <script>
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(amount);
+    }
+
+    function calculateValuation() {
+      var rawRevenue  = document.getElementById('revenue').value.replace(/[$,\s]/g, '');
+      var rawCashFlow = document.getElementById('cash_flow').value.replace(/[$,\s]/g, '');
+
+      var revenue  = parseInt(rawRevenue, 10);
+      var cashFlow = parseInt(rawCashFlow, 10);
+
+      var errors = [];
+      if (!rawRevenue || isNaN(revenue)) {
+        errors.push('Please enter your annual revenue.');
+      } else if (revenue < 10000) {
+        errors.push('Revenue must be at least $10,000.');
+      }
+
+      if (!rawCashFlow || isNaN(cashFlow)) {
+        errors.push("Please enter your owner's cash flow.");
+      } else if (cashFlow < 1000) {
+        errors.push('Cash flow must be at least $1,000.');
+      }
+
+      var errorEl = document.getElementById('form-error');
+      if (errors.length > 0) {
+        errorEl.textContent = errors.join(' ');
+        errorEl.style.display = 'block';
+        return;
+      }
+      errorEl.style.display = 'none';
+
+      var low  = cashFlow * 2.0;
+      var high = cashFlow * 3.0;
+      var rangeText = formatCurrency(low) + ' \u2013 ' + formatCurrency(high);
+
+      // Populate result card
+      document.getElementById('result-range').textContent = rangeText;
+
+      // Populate breakdown table
+      document.getElementById('breakdown-revenue').textContent = formatCurrency(revenue);
+      document.getElementById('breakdown-cashflow').innerHTML = formatCurrency(cashFlow) + ' <span class="note">(Net profit + owner\'s salary)</span>';
+      document.getElementById('breakdown-result').textContent = rangeText;
+
+      // Switch card to result view
+      document.getElementById('form-view').style.display = 'none';
+      document.getElementById('result-view').style.display = 'block';
+
+      // Show results section below card
+      document.getElementById('results-section').style.display = 'block';
+
+      // Scroll to top of card
+      document.getElementById('main-card').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Allow Enter key to submit
+    document.getElementById('valuation-form').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); calculateValuation(); }
+    });
+  </script>
 </body>
 </html>
