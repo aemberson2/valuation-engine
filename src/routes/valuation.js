@@ -89,10 +89,10 @@ router.post('/:slug/update', async (req, res) => {
   const baseUrl = req.baseUrl;
 
   try {
-    // Find business
+    // Find business (cast uuid column to text to avoid type mismatch)
     let result = await db.query(
       `SELECT id FROM businesses
-       WHERE url_slug = $1 OR valuation_url_slug = $1
+       WHERE url_slug = $1 OR valuation_url_slug::text = $1
        LIMIT 1`,
       [slug]
     );
@@ -150,9 +150,10 @@ router.post('/:slug/track', async (req, res) => {
   const { slug } = req.params;
 
   try {
+    // Cast uuid column to text to avoid type mismatch when slug is a plain string
     const result = await db.query(
       `SELECT id FROM businesses
-       WHERE url_slug = $1 OR valuation_url_slug = $1
+       WHERE url_slug = $1 OR valuation_url_slug::text = $1
        LIMIT 1`,
       [slug]
     );
