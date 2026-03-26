@@ -10,13 +10,15 @@ const router = express.Router();
  */
 async function renderValuationPage(req, res, business) {
   try {
-    // Increment view_count
-    await db.query(
-      `UPDATE businesses
-       SET view_count = view_count + 1
-       WHERE id = $1`,
-      [business.id]
-    );
+    // Increment view_count — skip if ?preview=1 (e.g. admin "View →" link)
+    if (req.query.preview !== '1') {
+      await db.query(
+        `UPDATE businesses
+         SET view_count = view_count + 1
+         WHERE id = $1`,
+        [business.id]
+      );
+    }
 
     // Calculate valuation
     const valuation = await calculateValuation(business);
