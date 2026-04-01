@@ -429,6 +429,29 @@
       margin-top: 25px;
     }
 
+    /* Copy link button */
+    .copy-link-btn {
+      background: none;
+      border: 1px solid #ced4da;
+      border-radius: 3px;
+      color: #6c757d;
+      cursor: pointer;
+      font-size: 11px;
+      padding: 2px 7px;
+      margin-left: 6px;
+      transition: all 0.15s;
+    }
+
+    .copy-link-btn:hover {
+      border-color: #28a745;
+      color: #28a745;
+    }
+
+    .copy-link-btn.copied {
+      border-color: #28a745;
+      color: #28a745;
+    }
+
     /* Success/Error message */
     .alert {
       padding: 12px 20px;
@@ -731,7 +754,7 @@
                 <td>
                   <%= new Date(business.created_at).toLocaleDateString() %>
                 </td>
-                <td>
+                <td style="white-space: nowrap;">
                   <a
                     href="<%= baseUrl %><%= business.url_slug ? '/v/' + business.url_slug : '/valuation/' + business.valuation_url_slug %>?preview=1"
                     target="_blank"
@@ -739,6 +762,14 @@
                   >
                     View →
                   </a>
+                  <button
+                    class="copy-link-btn"
+                    data-url="<%= baseUrl %><%= business.url_slug ? '/v/' + business.url_slug : '/valuation/' + business.valuation_url_slug %>"
+                    onclick="copyLink(this)"
+                    title="Copy valuation link"
+                  >
+                    Copy
+                  </button>
                 </td>
                 <td class="actions-cell">
                   <button
@@ -1003,6 +1034,35 @@
         });
       }
     });
+
+    // Copy valuation link to clipboard
+    function copyLink(btn) {
+      const url = btn.dataset.url;
+      navigator.clipboard.writeText(url).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      }).catch(() => {
+        // Fallback for older browsers
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
 
     // Edit modal functions
     async function openEditModal(id) {
