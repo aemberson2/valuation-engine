@@ -1,9 +1,25 @@
 const express = require('express');
+const { v4: uuidv4 } = require('uuid');
 const db = require('../config/database');
 const { calculateValuation } = require('../services/valuationEngine');
 const { generateUniqueSlug } = require('../services/slugGenerator');
+const { mapRegion } = require('../services/regionMapper');
 
 const router = express.Router();
+
+// GET /admin/business/new - Show add business form
+router.get('/business/new', async (req, res) => {
+  try {
+    const availResult = await db.query(
+      "SELECT industry FROM valuation_assumptions WHERE is_active = true AND industry != 'generic' ORDER BY industry"
+    );
+    const availableIndustries = availResult.rows.map(r => r.industry);
+    res.render('add-business', { availableIndustries });
+  } catch (error) {
+    console.error('Error loading add business form:', error);
+    res.status(500).send('Error loading form');
+  }
+});
 
 // GET /admin - Show all businesses with filters and sorting
 router.get('/', async (req, res) => {
@@ -27,7 +43,8 @@ router.get('/', async (req, res) => {
       search = '',
       completed = '',
       sortBy = 'created_at',
-      sortOrder = 'desc'
+      sortOrder = 'desc',
+      message = ''
     } = req.query;
 
     // Build WHERE clause
@@ -183,6 +200,17 @@ router.get('/', async (req, res) => {
       console.error('Error loading industries:', err);
     }
 
+    // Get available industries from valuation_assumptions for the Add Business form
+    let availableIndustries = [];
+    try {
+      const availResult = await db.query(
+        "SELECT industry FROM valuation_assumptions WHERE is_active = true AND industry != 'generic' ORDER BY industry"
+      );
+      availableIndustries = availResult.rows.map(r => r.industry);
+    } catch (err) {
+      console.error('Error loading available industries:', err);
+    }
+
     try {
       const statesResult = await db.query(
         'SELECT DISTINCT state FROM businesses ORDER BY state'
@@ -210,7 +238,9 @@ router.get('/', async (req, res) => {
       },
       batches: batches,
       industries: industries,
-      states: states
+      states: states,
+      availableIndustries: availableIndustries,
+      message: message || ''
     });
 
   } catch (error) {
@@ -409,6 +439,63 @@ router.post('/batch/delete', express.json(), async (req, res) => {
   } catch (error) {
     console.error('Error deleting batch:', error);
     res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /admin/business/new - Create a new business manually
+router.post('/business/new', express.urlencoded({ extended: true }), async (req, res) => {
+  try {
+    const { company_name, city, state, industry, custom_revenue } = req.body;
+
+    // Validate required fields
+    const errors = [];
+    if (!company_name || !company_name.trim()) errors.push('Company name is required');
+    if (!city || !city.trim()) errors.push('City is required');
+    if (!state || !state.trim()) errors.push('State is required');
+
+    if (errors.length > 0) {
+      return res.redirect(`/admin?message=${encodeURIComponent('Error: ' + errors.join(', '))}`);
+    }
+
+    const trimmedName = company_name.trim();
+    const trimmedCity = city.trim();
+    const trimmedState = state.trim().toUpperCase();
+    const trimmedIndustry = industry ? industry.trim() : null;
+    const parsedRevenue = custom_revenue && custom_revenue !== ''
+      ? parseInt(custom_revenue, 10)
+      : null;
+
+    // Generate URL slug and UUID
+    const urlSlug = await generateUniqueSlug(trimmedName, db);
+    const valuationUrlSlug = uuidv4();
+
+    // Map region
+    const { region_label } = await mapRegion(trimmedCity, trimmedState);
+
+    // Insert business
+    await db.query(
+      `INSERT INTO businesses
+        (id, company_name, city, state, industry, region_label, valuation_url_slug, url_slug, custom_revenue, batch_name)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      [
+        uuidv4(),
+        trimmedName,
+        trimmedCity,
+        trimmedState,
+        trimmedIndustry,
+        region_label,
+        valuationUrlSlug,
+        urlSlug,
+        parsedRevenue,
+        'Manual'
+      ]
+    );
+
+    res.redirect(`/admin?message=${encodeURIComponent('Business added successfully')}`);
+
+  } catch (error) {
+    console.error('Error adding business:', error);
+    res.redirect(`/admin?message=${encodeURIComponent('Error: ' + error.message)}`);
   }
 });
 

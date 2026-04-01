@@ -429,6 +429,37 @@
       margin-top: 25px;
     }
 
+    /* Success/Error message */
+    .alert {
+      padding: 12px 20px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert-error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    /* Add Business button */
+    .btn-success {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background-color: #218838;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .container {
@@ -460,6 +491,13 @@
       </div>
     </div>
 
+    <!-- Success/Error Message -->
+    <% if (message) { %>
+      <div class="alert <%= message.startsWith('Error') ? 'alert-error' : 'alert-success' %>">
+        <%= message %>
+      </div>
+    <% } %>
+
     <!-- Header -->
     <div class="header">
       <div>
@@ -474,6 +512,7 @@
           🔄 Reset All Views
         </button>
         <a href="/admin/export<%= filters.batch ? '?batch=' + encodeURIComponent(filters.batch) : '' %>" class="btn btn-primary">📥 Export CSV</a>
+        <a href="/admin/business/new" class="btn btn-success">+ Add Business</a>
       </div>
     </div>
 
