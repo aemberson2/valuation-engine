@@ -9,6 +9,7 @@ const { requireAuth, authRoute } = require('./middleware/auth');
 const uploadRouter = require('./routes/upload');
 const valuationRouter = require('./routes/valuation');
 const adminRouter = require('./routes/admin');
+const apolloRouter = require('./routes/apollo');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -64,7 +65,8 @@ async function runMigrations() {
       { file: '008_add_custom_revenue.sql', name: 'Add custom revenue' },
       { file: '009_update_default_revenue.sql', name: 'Update default revenue to $900k' },
       { file: '010_add_custom_sde.sql', name: 'Add custom SDE field' },
-      { file: '011_add_actual_revenue_cashflow.sql', name: 'Add actual revenue and cash flow fields' }
+      { file: '011_add_actual_revenue_cashflow.sql', name: 'Add actual revenue and cash flow fields' },
+      { file: '012_create_apollo_phone_results.sql', name: 'Create Apollo phone results table' }
     ];
 
     let migrationsToRun = [];
@@ -215,6 +217,7 @@ app.use('/upload', requireAuth, uploadRouter);
 app.use('/valuation', valuationRouter);  // Old UUID-based URLs: /valuation/:uuid
 app.use('/v', valuationRouter);          // New clean URLs: /v/:slug
 app.use('/admin', requireAuth, adminRouter);
+app.use('/api/apollo', requireAuth, apolloRouter);
 
 // Health check endpoint for Railway
 app.get('/health', (req, res) => {
