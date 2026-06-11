@@ -5,6 +5,7 @@ const fs = require('fs');
 require('dotenv').config();
 
 const db = require('./config/database');
+const { requireAuth, authRoute } = require('./middleware/auth');
 const uploadRouter = require('./routes/upload');
 const valuationRouter = require('./routes/valuation');
 const adminRouter = require('./routes/admin');
@@ -209,10 +210,11 @@ async function initializeApp() {
 }
 
 // Routes (must be defined before initializeApp)
-app.use('/upload', uploadRouter);
+app.get('/auth', authRoute);             // Sets auth cookie: /auth?token=<token>
+app.use('/upload', requireAuth, uploadRouter);
 app.use('/valuation', valuationRouter);  // Old UUID-based URLs: /valuation/:uuid
 app.use('/v', valuationRouter);          // New clean URLs: /v/:slug
-app.use('/admin', adminRouter);
+app.use('/admin', requireAuth, adminRouter);
 
 // Health check endpoint for Railway
 app.get('/health', (req, res) => {
