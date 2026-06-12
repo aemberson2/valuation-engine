@@ -10,6 +10,7 @@ const uploadRouter = require('./routes/upload');
 const valuationRouter = require('./routes/valuation');
 const adminRouter = require('./routes/admin');
 const apolloRouter = require('./routes/apollo');
+const businessesApiRouter = require('./routes/businessesApi');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -218,6 +219,7 @@ app.use('/valuation', valuationRouter);  // Old UUID-based URLs: /valuation/:uui
 app.use('/v', valuationRouter);          // New clean URLs: /v/:slug
 app.use('/admin', requireAuth, adminRouter);
 app.use('/api/apollo', requireAuth, apolloRouter);
+app.use('/api/businesses', requireAuth, businessesApiRouter);
 
 // Health check endpoint for Railway
 app.get('/health', (req, res) => {
