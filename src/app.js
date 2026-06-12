@@ -15,6 +15,10 @@ const businessesApiRouter = require('./routes/businessesApi');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Railway terminates TLS at a single proxy in front of the app; trust it so
+// req.ip reflects the real client IP (used for view dedup) instead of the proxy
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -67,7 +71,8 @@ async function runMigrations() {
       { file: '009_update_default_revenue.sql', name: 'Update default revenue to $900k' },
       { file: '010_add_custom_sde.sql', name: 'Add custom SDE field' },
       { file: '011_add_actual_revenue_cashflow.sql', name: 'Add actual revenue and cash flow fields' },
-      { file: '012_create_apollo_phone_results.sql', name: 'Create Apollo phone results table' }
+      { file: '012_create_apollo_phone_results.sql', name: 'Create Apollo phone results table' },
+      { file: '013_create_view_events.sql', name: 'Create view events table' }
     ];
 
     let migrationsToRun = [];

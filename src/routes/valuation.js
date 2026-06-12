@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('../config/database');
 const { calculateValuation } = require('../services/valuationEngine');
+const { shouldCountView, recordView } = require('../services/viewTracker');
 
 const router = express.Router();
 
@@ -10,14 +11,10 @@ const router = express.Router();
  */
 async function renderValuationPage(req, res, business) {
   try {
-    // Increment view_count — skip if ?preview=1 (e.g. admin "View →" link)
-    if (req.query.preview !== '1') {
-      await db.query(
-        `UPDATE businesses
-         SET view_count = view_count + 1
-         WHERE id = $1`,
-        [business.id]
-      );
+    // Count the view unless it's an admin preview/own visit, a bot or
+    // prefetch, or a repeat from the same IP+UA within the hour
+    if (shouldCountView(req, business.id)) {
+      await recordView(db, business.id, req);
     }
 
     // Calculate valuation
