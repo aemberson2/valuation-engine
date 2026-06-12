@@ -109,4 +109,4 @@ function authRoute(req, res) {
   res.redirect('/admin');
 }
 
-module.exports = { requireAuth, authRoute };
+module.exports = { requireAuth, authRoute, AUTH_COOKIE_NAME };
